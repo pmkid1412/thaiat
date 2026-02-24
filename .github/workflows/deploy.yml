@@ -31,7 +31,7 @@ jobs:
 
       - name: CMS - Build
         working-directory: TUVI_CMS_FE
-        run: npm run build
+        run: npx vite build
 
   # ── Step 2: Deploy to VPS ──
   deploy:

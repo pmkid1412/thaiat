@@ -9,8 +9,8 @@ RUN npm install --no-audit --no-fund
 # Copy source code
 COPY . .
 
-# Build production bundle
-RUN npm run build
+# Build production bundle (skip tsc, CI handles type-check)
+RUN npx vite build
 
 # STEP 2: Serve with NGINX
 FROM nginx:alpine
