@@ -256,7 +256,7 @@ export class PredictHoroscopeJob {
     }
   };
 
-  private prepareInput = (horoscope: UserHoroscope, mode: string): Input => {
+  prepareInput = (horoscope: UserHoroscope, mode: string): Input => {
     const timeOfBirth = horoscope.timeOfBirth.split(':');
 
     return {
@@ -424,6 +424,43 @@ export class PredictHoroscopeJob {
 
       child.on('error', (err) => {
         console.log(`Failed to start process: ${err.message}`);
+        reject(err);
+      });
+    });
+  };
+
+  runChartOnly = (input: Input): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const child = spawn(
+        process.env.PREDICTION_TOOL_PATH || '',
+        [JSON.stringify(input)],
+        { env: {}, shell: false },
+      );
+
+      let outputData = '';
+
+      child.stdout.on('data', (data: Buffer) => {
+        outputData += data.toString('utf-8');
+      });
+
+      child.stderr.on('data', (data) => {
+        console.log(`CHART_ONLY STDERR: ${data}`);
+      });
+
+      child.on('close', (code) => {
+        if (code === 0) {
+          try {
+            const parsed = JSON.parse(outputData);
+            resolve(parsed);
+          } catch (err) {
+            reject(new Error('Failed to parse chart output'));
+          }
+        } else {
+          reject(new Error(`Chart binary exited with code ${code}`));
+        }
+      });
+
+      child.on('error', (err) => {
         reject(err);
       });
     });

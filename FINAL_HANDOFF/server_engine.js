@@ -63,8 +63,23 @@ async function run() {
 
         const result = buildEngineOutput(calInput);
 
+        // 4.5 CHART_ONLY MODE: Return chart data immediately, no AI call
+        const mode = input.mode || 'full'; // 'daily', 'monthly', 'lifetime', 'full', 'chart_only'
+        console.error(`>>> Mode: ${mode}`);
+
+        if (mode === 'chart_only') {
+            const chartResponse = {
+                success: true,
+                mode: 'chart_only',
+                profile: result.chart?.profile || {},
+                palaces: result.chart?.palaces || {},
+            };
+            const output = JSON.stringify(chartResponse);
+            process.stdout.write(output);
+            process.exit(0);
+        }
+
         // 5. LLM Prompt Generation
-        const mode = input.mode || 'full'; // 'daily', 'monthly', 'lifetime', 'full'
         console.error(`>>> Generating prompt for mode: ${mode}`);
         const prompt = buildLLMPrompt(result, mode);
         console.error("(Prompt created, length: " + prompt.length + " chars)");

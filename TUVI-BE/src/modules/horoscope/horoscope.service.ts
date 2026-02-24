@@ -315,4 +315,41 @@ export class HoroscopeService {
       html_report: horoscopePrediction?.details?.html_report ?? null,
     };
   }
+
+  async getChart(currentUser: any) {
+    // Dummy mode
+    if (await this.isDummyMode()) {
+      return {
+        profile: { name: 'Demo User' },
+        palaces: {},
+      };
+    }
+
+    const horoscope = await this.userHoroscopeRepository.findOne({
+      where: {
+        isUsing: true,
+        user: { id: currentUser.id },
+      },
+    });
+
+    if (!horoscope) {
+      throw new NotFoundException(ErrorResponseMessage.DATA_NOT_FOUND);
+    }
+
+    const input = this.predictHoroscopeJob.prepareInput(
+      horoscope,
+      HoroscopePredictionMode.CHART_ONLY,
+    );
+
+    try {
+      const chartData = await this.predictHoroscopeJob.runChartOnly(input);
+      return {
+        profile: chartData.profile || {},
+        palaces: chartData.palaces || {},
+      };
+    } catch (err) {
+      console.error('Chart generation error:', err);
+      return {};
+    }
+  }
 }

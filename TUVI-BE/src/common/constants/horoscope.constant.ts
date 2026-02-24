@@ -3,6 +3,7 @@ export const HoroscopePredictionMode = {
   MONTHLY: 'monthly',
   LIFETIME: 'lifetime',
   FULL: 'full',
+  CHART_ONLY: 'chart_only',
 };
 
 export const CalendarType = {

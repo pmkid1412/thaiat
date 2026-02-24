@@ -15,7 +15,7 @@ import { AdminGuard } from 'src/common/guards/admin.guard';
 @ApiBearerAuth()
 @Controller('horoscopes')
 export class HoroscopeController {
-  constructor(private readonly horoscopeService: HoroscopeService) {}
+  constructor(private readonly horoscopeService: HoroscopeService) { }
 
   @UseGuards(UserGuard)
   @Get()
@@ -67,6 +67,13 @@ export class HoroscopeController {
   @ApiBaseResponse({})
   getHoroscopeThisYear(@CurrentUser() currentUser) {
     return this.horoscopeService.getHoroscopeThisYear(currentUser);
+  }
+
+  @UseGuards(UserGuard)
+  @Get('chart')
+  @ApiBaseResponse({})
+  getChart(@CurrentUser() currentUser) {
+    return this.horoscopeService.getChart(currentUser);
   }
 
   @UseGuards(AdminGuard)
