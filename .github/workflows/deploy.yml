@@ -1,0 +1,77 @@
+name: Deploy Thái Ất
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  # ── Step 1: Build & Verify ──
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Backend build test
+      - name: Backend - Install dependencies
+        working-directory: TUVI-BE
+        run: npm ci
+
+      - name: Backend - Build
+        working-directory: TUVI-BE
+        run: npm run build
+
+      # CMS build test
+      - name: CMS - Install dependencies
+        working-directory: TUVI_CMS_FE
+        run: npm ci
+
+      - name: CMS - Build
+        working-directory: TUVI_CMS_FE
+        run: npm run build
+
+  # ── Step 2: Deploy to VPS ──
+  deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          command_timeout: 10m
+          script: |
+            cd /root/app
+            bash deploy.sh
+
+      - name: Telegram - Success ✅
+        if: success()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            ✅ *Deploy Thái Ất thành công*
+            📦 Commit: `${{ github.sha }}`
+            👤 By: ${{ github.actor }}
+            📝 ${{ github.event.head_commit.message }}
+
+      - name: Telegram - Failed ❌
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            ❌ *Deploy Thái Ất thất bại!*
+            📦 Commit: `${{ github.sha }}`
+            👤 By: ${{ github.actor }}
+            🔗 [Xem logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lá Số Tử Vi - Test 1969</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #0f0f14;
+    color: #e8e6e3;
+    padding: 12px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header Card */
+  .v-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  .v-header-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #f0c27f;
+    letter-spacing: 1.5px;
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .v-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 16px;
+    font-size: 13px;
+  }
+  .v-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .v-info-label { color: #8b8fa3; font-weight: 500; }
+  .v-info-value { color: #e8e6e3; font-weight: 600; text-align: right; }
+  .v-info-value.highlight { color: #f0c27f; }
+
+  .v-meta {
+    text-align: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .v-meta-line {
+    font-size: 12px;
+    color: #8b8fa3;
+    margin-bottom: 3px;
+  }
+  .v-meta-line b { color: #e8e6e3; }
+
+  .v-tu-hoa {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .tu-hoa-item {
+    font-size: 11px;
+    color: #ccc;
+    background: rgba(255,255,255,0.05);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .tu-hoa-label { font-weight: 700; }
+
+  .v-tuan-triet {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #8b8fa3;
+  }
+
+  /* Palace Cards */
+  .v-card {
+    background: #1a1a24;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.2s;
+  }
+  .v-card-menh {
+    border-left: 3px solid #e74c3c;
+    background: linear-gradient(90deg, rgba(231,76,60,0.08) 0%, #1a1a24 30%);
+  }
+  .v-card-than {
+    border-left: 3px solid #e67e22;
+    background: linear-gradient(90deg, rgba(230,126,34,0.08) 0%, #1a1a24 30%);
+  }
+  .v-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .v-card-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .v-palace-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e8e6e3;
+    letter-spacing: 0.5px;
+  }
+  .v-chi {
+    font-size: 12px;
+    color: #8b8fa3;
+    font-weight: 500;
+  }
+  .v-dai-van {
+    font-size: 11px;
+    color: #555;
+    font-weight: 500;
+  }
+
+  /* Badges */
+  .badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-menh { background: rgba(231,76,60,0.2); color: #e74c3c; }
+  .badge-than { background: rgba(230,126,34,0.2); color: #e67e22; }
+  .badge-triet { background: rgba(231,76,60,0.15); color: #e57373; }
+  .badge-tuan { background: rgba(255,235,59,0.15); color: #fdd835; }
+
+  /* Stars */
+  .v-main-stars {
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 4px;
+  }
+  .v-aux-stars {
+    font-size: 11px;
+    line-height: 1.7;
+    color: #777;
+  }
+</style>
+</head>
+<body>
+
+<div class="v-header">
+  <div class="v-header-title">☰ Lá Số Tử Vi</div>
+  <div class="v-info-grid">
+    <div class="v-info-item">
+      <span class="v-info-label">Họ tên</span>
+      <span class="v-info-value highlight">Test 1969</span>
+    </div>
+    <div class="v-info-item">
+      <span class="v-info-label">Giới tính</span>
+      <span class="v-info-value">Nam</span>
+    </div>
+    <div class="v-info-item">
+      <span class="v-info-label">Năm sinh</span>
+      <span class="v-info-value">Kỷ Dậu</span>
+    </div>
+    <div class="v-info-item">
+      <span class="v-info-label">ÂL</span>
+      <span class="v-info-value">17/11/1969</span>
+    </div>
+    <div class="v-info-item">
+      <span class="v-info-label">Giờ sinh</span>
+      <span class="v-info-value">Dậu (18:00)</span>
+    </div>
+    <div class="v-info-item">
+      <span class="v-info-label">Cục</span>
+      <span class="v-info-value highlight">Hỏa Lục Cục</span>
+    </div>
+  </div>
+  <div class="v-meta">
+    <div class="v-meta-line">Mệnh tại <b>[Mão]</b> — Chủ tinh: <b>Tử Vi</b></div>
+    <div class="v-meta-line">Thân cư: <b>Thiên Di (Dậu)</b></div>
+  </div>
+  <div class="v-tu-hoa"><span class="tu-hoa-item"><span class="tu-hoa-label" style="color:#e67e22">Hóa Lộc</span> Vũ Khúc</span><span class="tu-hoa-item"><span class="tu-hoa-label" style="color:#e67e22">Hóa Quyền</span> Tham Lang</span><span class="tu-hoa-item"><span class="tu-hoa-label" style="color:#e67e22">Hóa Khoa</span> Thiên Lương</span><span class="tu-hoa-item"><span class="tu-hoa-label" style="color:#e74c3c">Hóa Kỵ</span> Văn Khúc</span></div>
+  <div class="v-tuan-triet">
+    <span>Tuần: <b style="color:#fdd835">Dần, Mão</b></span>
+    <span>Triệt: <b style="color:#e57373">Thân, Dậu</b></span>
+  </div>
+</div>
+
+
+    <div class="v-card v-card-menh ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">MỆNH</span>
+          <span class="v-chi">(Mão)</span>
+          <span class="badge badge-menh">MỆNH</span><span class="badge badge-tuan">Tuần</span>
+        </div>
+        <span class="v-dai-van">6–15 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Tử Vi</span> &nbsp; <span style="color:#1a237e;font-weight:bold">Tham Lang</span></div>
+      <div class="v-aux-stars"><span style="color:#333;font-weight:normal">Thiên Hư</span> &nbsp; <span style="color:#333;font-weight:normal">Thai Phụ</span> &nbsp; <span style="color:#333;font-weight:normal">Tuế Phá</span> &nbsp; <span style="color:#333;font-weight:normal">Tiểu Hao</span> &nbsp; <span style="color:#333;font-weight:normal">Dưỡng</span> &nbsp; <span style="color:#e65100;font-weight:normal">Hóa Quyền</span></div>
+    </div>
+    <div class="v-card  v-card-than">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">THIÊN DI</span>
+          <span class="v-chi">(Dậu)</span>
+          <span class="badge badge-than">THÂN</span><span class="badge badge-triet">Triệt</span>
+        </div>
+        <span class="v-dai-van">66–75 tuổi</span>
+      </div>
+      
+      <div class="v-aux-stars"><span style="color:#333;font-weight:normal">Lưu Niên Văn Tinh</span> &nbsp; <span style="color:#333;font-weight:normal">Thiên Trù</span> &nbsp; <span style="color:#333;font-weight:normal">Tướng Tinh</span> &nbsp; <span style="color:#333;font-weight:normal">Thiên Khốc</span> &nbsp; <span style="color:#333;font-weight:normal">Thái Tuế</span> &nbsp; <span style="color:#333;font-weight:normal">Đại Hao</span> &nbsp; <span style="color:#333;font-weight:normal">Suy</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">QUAN LỘC</span>
+          <span class="v-chi">(Mùi)</span>
+          
+        </div>
+        <span class="v-dai-van">86–95 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Liêm Trinh</span> &nbsp; <span style="color:#c62828;font-weight:bold">Thất Sát</span></div>
+      <div class="v-aux-stars"><span style="color:#c62828;font-weight:normal">Kình Dương</span> &nbsp; <span style="color:#333;font-weight:normal">Quả Tú</span> &nbsp; <span style="color:#333;font-weight:normal">Thiên Hình</span> &nbsp; <span style="color:#c62828;font-weight:normal">Linh Tinh</span> &nbsp; <span style="color:#333;font-weight:normal">Điếu Khách</span> &nbsp; <span style="color:#333;font-weight:normal">Quan Phủ</span> &nbsp; <span style="color:#333;font-weight:normal">Tử</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">TÀI BẠCH</span>
+          <span class="v-chi">(Hợi)</span>
+          
+        </div>
+        <span class="v-dai-van">46–55 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Vũ Khúc</span> &nbsp; <span style="color:#c62828;font-weight:bold">Phá Quân</span></div>
+      <div class="v-aux-stars"><span style="color:#333;font-weight:normal">Đường Phù</span> &nbsp; <span style="color:#2e7d32;font-weight:normal">Thiên Mã</span> &nbsp; <span style="color:#333;font-weight:normal">Cô Thần</span> &nbsp; <span style="color:#ad1457;font-weight:normal">Thiên Diêu</span> &nbsp; <span style="color:#333;font-weight:normal">Phong Cáo</span> &nbsp; <span style="color:#333;font-weight:normal">Tang Môn</span> &nbsp; <span style="color:#333;font-weight:normal">Hỷ Thần</span> &nbsp; <span style="color:#333;font-weight:normal">Lâm Quan</span> &nbsp; <span style="color:#e65100;font-weight:normal">Hóa Lộc</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">PHU THÊ</span>
+          <span class="v-chi">(Sửu)</span>
+          
+        </div>
+        <span class="v-dai-van">26–35 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Phủ</span></div>
+      <div class="v-aux-stars"><span style="color:#333;font-weight:normal">Hoa Cái</span> &nbsp; <span style="color:#333;font-weight:normal">Long Trì</span> &nbsp; <span style="color:#333;font-weight:normal">Phượng Các</span> &nbsp; <span style="color:#2e7d32;font-weight:normal">Văn Xương</span> &nbsp; <span style="color:#2e7d32;font-weight:normal">Văn Khúc</span> &nbsp; <span style="color:#333;font-weight:normal">Quan Phù</span> &nbsp; <span style="color:#333;font-weight:normal">Tấu Thư</span> &nbsp; <span style="color:#333;font-weight:normal">Mộc Dục</span> &nbsp; <span style="color:#b71c1c;font-weight:normal">Hóa Kỵ</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">TỬ TỨC</span>
+          <span class="v-chi">(Tý)</span>
+          
+        </div>
+        <span class="v-dai-van">36–45 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Thái Dương</span></div>
+      <div class="v-aux-stars"><span style="color:#2e7d32;font-weight:normal">Thiên Khôi</span> &nbsp; <span style="color:#ad1457;font-weight:normal">Thiên Hỷ</span> &nbsp; <span style="color:#2e7d32;font-weight:normal">Hữu Bật</span> &nbsp; <span style="color:#333;font-weight:normal">Thiếu Âm</span> &nbsp; <span style="color:#333;font-weight:normal">Phi Liêm</span> &nbsp; <span style="color:#333;font-weight:normal">Quan Đới</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">TẬT ÁCH</span>
+          <span class="v-chi">(Tuất)</span>
+          
+        </div>
+        <span class="v-dai-van">56–65 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Đồng</span></div>
+      <div class="v-aux-stars"><span style="color:#333;font-weight:normal">Thiên Quan</span> &nbsp; <span style="color:#333;font-weight:normal">Thiên Không (Đức)</span> &nbsp; <span style="color:#333;font-weight:normal">Thiếu Dương</span> &nbsp; <span style="color:#333;font-weight:normal">Bệnh Phù</span> &nbsp; <span style="color:#333;font-weight:normal">Đế Vượng</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">ĐIỀN TRẠCH</span>
+          <span class="v-chi">(Ngọ)</span>
+          
+        </div>
+        <span class="v-dai-van">96–105 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Lương</span></div>
+      <div class="v-aux-stars"><span style="color:#2e7d32;font-weight:normal">Lộc Tồn</span> &nbsp; <span style="color:#333;font-weight:normal">Lưu Hà</span> &nbsp; <span style="color:#ad1457;font-weight:normal">Đào Hoa</span> &nbsp; <span style="color:#333;font-weight:normal">Thiên Đức</span> &nbsp; <span style="color:#ad1457;font-weight:normal">Hồng Loan</span> &nbsp; <span style="color:#c62828;font-weight:normal">Hỏa Tinh</span> &nbsp; <span style="color:#333;font-weight:normal">Phúc Đức</span> &nbsp; <span style="color:#333;font-weight:normal">Bác Sỹ</span> &nbsp; <span style="color:#333;font-weight:normal">Mộ</span> &nbsp; <span style="color:#e65100;font-weight:normal">Hóa Khoa</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">PHÚC ĐỨC</span>
+          <span class="v-chi">(Tỵ)</span>
+          
+        </div>
+        <span class="v-dai-van">106–115 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Tướng</span></div>
+      <div class="v-aux-stars"><span style="color:#c62828;font-weight:normal">Đà La</span> &nbsp; <span style="color:#333;font-weight:normal">Phá Toái</span> &nbsp; <span style="color:#333;font-weight:normal">Bạch Hổ</span> &nbsp; <span style="color:#333;font-weight:normal">Lực Sỹ</span> &nbsp; <span style="color:#333;font-weight:normal">Tuyệt</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">PHỤ MẪU</span>
+          <span class="v-chi">(Thìn)</span>
+          
+        </div>
+        <span class="v-dai-van">116–125 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Cự Môn</span></div>
+      <div class="v-aux-stars"><span style="color:#333;font-weight:normal">Ân Quang</span> &nbsp; <span style="color:#333;font-weight:normal">Long Đức</span> &nbsp; <span style="color:#333;font-weight:normal">Thanh Long</span> &nbsp; <span style="color:#333;font-weight:normal">Thai</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">HUYNH ĐỆ</span>
+          <span class="v-chi">(Dần)</span>
+          <span class="badge badge-tuan">Tuần</span>
+        </div>
+        <span class="v-dai-van">16–25 tuổi</span>
+      </div>
+      <div class="v-main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Cơ</span> &nbsp; <span style="color:#1a237e;font-weight:bold">Thái Âm</span></div>
+      <div class="v-aux-stars"><span style="color:#333;font-weight:normal">Quốc Ấn</span> &nbsp; <span style="color:#333;font-weight:normal">Thiên Phúc</span> &nbsp; <span style="color:#333;font-weight:normal">Kiếp Sát</span> &nbsp; <span style="color:#333;font-weight:normal">Nguyệt Đức</span> &nbsp; <span style="color:#2e7d32;font-weight:normal">Tả Phù</span> &nbsp; <span style="color:#c62828;font-weight:normal">Địa Không</span> &nbsp; <span style="color:#333;font-weight:normal">Tử Phù</span> &nbsp; <span style="color:#333;font-weight:normal">Tướng Quân</span> &nbsp; <span style="color:#333;font-weight:normal">Trường Sinh</span></div>
+    </div>
+    <div class="v-card  ">
+      <div class="v-card-head">
+        <div class="v-card-title">
+          <span class="v-palace-name">NÔ BỘC</span>
+          <span class="v-chi">(Thân)</span>
+          <span class="badge badge-triet">Triệt</span>
+        </div>
+        <span class="v-dai-van">76–85 tuổi</span>
+      </div>
+      
+      <div class="v-aux-stars"><span style="color:#2e7d32;font-weight:normal">Thiên Việt</span> &nbsp; <span style="color:#333;font-weight:normal">Thiên Quý</span> &nbsp; <span style="color:#c62828;font-weight:normal">Địa Kiếp</span> &nbsp; <span style="color:#333;font-weight:normal">Trực Phù</span> &nbsp; <span style="color:#333;font-weight:normal">Phục Binh</span> &nbsp; <span style="color:#333;font-weight:normal">Bệnh</span></div>
+    </div>
+
+</body>
+</html>

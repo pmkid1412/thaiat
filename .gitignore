@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Database
+*.sql
+mysql_data/
+
+# Uploads
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Binary builds (tracked separately)
+FINAL_HANDOFF/bin/
+FINAL_HANDOFF/dist/
+
+# Misc
+*.zip
+FINAL_HANDOFF.zip

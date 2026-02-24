@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tử Vi Đẩu Số — Test UI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --card: #111827;
+      --card-hover: #1a2235;
+      --border: #1e293b;
+      --accent: #f59e0b;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --text-bright: #f8fafc;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 70% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+      animation: pulse 8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+
+    .header p {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-top: 4px;
+      position: relative;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .grid-top {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-top {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: border-color 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-bright);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #d97706);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Profile Card */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .profile-item {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .profile-item .label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-item .value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin-top: 2px;
+    }
+
+    .profile-item.highlight .value {
+      color: var(--accent);
+    }
+
+    /* Palace Grid (Tử Vi Chart Layout) */
+    .palace-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, auto);
+      gap: 2px;
+      margin-top: 1.5rem;
+      background: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .palace-cell {
+      background: var(--card);
+      padding: 10px;
+      min-height: 120px;
+      position: relative;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .palace-cell:hover {
+      background: var(--card-hover);
+    }
+
+    .palace-cell.menh {
+      border: 2px solid var(--accent);
+    }
+
+    .palace-cell.than {
+      border: 2px solid var(--accent3);
+    }
+
+    .palace-name {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .palace-chi {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 1px;
+    }
+
+    .palace-ages {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      font-size: 0.6rem;
+      color: var(--accent3);
+      font-weight: 600;
+      background: rgba(6, 182, 212, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .palace-stars {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+
+    .star-tag {
+      font-size: 0.55rem;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(139, 92, 246, 0.12);
+      color: var(--accent2);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .star-tag.main {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .star-tag.combo {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      font-weight: 600;
+      font-style: italic;
+    }
+
+    .star-tag.hoa {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    /* Center cell (empty) */
+    .palace-center {
+      grid-column: 2 / 4;
+      grid-row: 2 / 4;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      padding: 1.5rem;
+    }
+
+    .palace-center .big-text {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .palace-center .sub-text {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    /* Detail Panel */
+    .detail-panel {
+      margin-top: 1.5rem;
+    }
+
+    .detail-palace-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .detail-palace-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-bright);
+    }
+
+    .detail-palace-header .badge {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    .interp-card {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .interp-card .star-name {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .interp-card .star-summary {
+      color: var(--text);
+      font-size: 0.82rem;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .interp-card .star-advice {
+      color: var(--accent3);
+      font-size: 0.78rem;
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .combo-tag {
+      display: inline-block;
+      margin-top: 6px;
+      margin-right: 4px;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    /* Prompt Preview */
+    .prompt-preview {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      line-height: 1.6;
+      color: var(--text-dim);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Loading */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Hidden */
+    .hidden {
+      display: none;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-dim);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--accent2);
+      color: #fff;
+      border-color: var(--accent2);
+    }
+
+    .tab:hover:not(.active) {
+      border-color: var(--accent2);
+      color: var(--text);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>☯ Tử Vi Đẩu Số — Test Engine</h1>
+    <p>Nhập thông tin ngày sinh để lập lá số và xem luận giải</p>
+  </div>
+
+  <div class="container">
+    <div class="grid-top">
+      <!-- Input Form -->
+      <div class="card">
+        <div class="card-title">📝 Thông Tin Đầu Vào</div>
+        <form id="birthForm">
+          <div class="form-group">
+            <label>Họ tên</label>
+            <input type="text" id="name" value="User Test" placeholder="Nhập họ tên">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Giới tính</label>
+              <select id="gender">
+                <option value="Nam">Nam</option>
+                <option value="Nu">Nữ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Lịch</label>
+              <select id="calendarType">
+                <option value="lunar">Âm lịch</option>
+                <option value="solar">Dương lịch</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Ngày</label>
+              <input type="number" id="day" value="28" min="1" max="31">
+            </div>
+            <div class="form-group">
+              <label>Tháng</label>
+              <input type="number" id="month" value="12" min="1" max="12">
+            </div>
+            <div class="form-group">
+              <label>Năm</label>
+              <input type="number" id="year" value="1989" min="1900" max="2100">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Giờ sinh</label>
+              <input type="time" id="tob" value="06:30">
+            </div>
+            <div class="form-group">
+              <label>Múi giờ</label>
+              <select id="timeZone">
+                <option value="7" selected>UTC+7 (Việt Nam)</option>
+                <option value="8">UTC+8 (Trung Quốc)</option>
+                <option value="0">UTC+0</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submitBtn">⚡ Lập Lá Số</button>
+        </form>
+      </div>
+
+      <!-- Profile Result -->
+      <div>
+        <div class="card" id="profileCard" style="display:none">
+          <div class="card-title">🌟 Hồ Sơ Tử Vi</div>
+          <div class="profile-grid" id="profileGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p style="color:var(--text-dim)">Đang lập lá số...</p>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="hidden">
+      <div class="tabs">
+        <div class="tab active" data-tab="chart">Lá Số (Chart)</div>
+        <div class="tab" data-tab="laso">🖼 Lá Số Hình</div>
+        <div class="tab" data-tab="report">📖 Luận Giải</div>
+        <div class="tab" data-tab="detail">Chi Tiết Cung</div>
+        <div class="tab" data-tab="prompt">Prompt Preview</div>
+      </div>
+
+      <div class="tab-content active" id="tab-chart">
+        <div class="palace-grid" id="palaceGrid"></div>
+      </div>
+
+      <div class="tab-content" id="tab-laso">
+        <div id="lasoHinhContent" style="background:#fff;padding:1rem;border-radius:8px;overflow-x:auto"></div>
+      </div>
+
+      <div class="tab-content" id="tab-report">
+        <!-- API Key + Gemini call -->
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">🤖 Luận Giải AI (Gemini 2.5 Flash)</div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:220px">
+              <label
+                style="display:block;font-size:0.72rem;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Gemini
+                API Key</label>
+              <input type="password" id="geminiApiKey" placeholder="AIzaSy..."
+                style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:0.85rem;outline:none">
+            </div>
+            <button id="geminiBtn" onclick="callGeminiReport()"
+              style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-weight:700;cursor:pointer;font-size:0.85rem;white-space:nowrap"
+              disabled>✨ Luận Giải AI</button>
+          </div>
+          <div id="geminiStatus" style="margin-top:8px;font-size:0.78rem;color:var(--text-dim)"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📖 Nội Dung Luận Giải</div>
+          <div id="reportContent" style="padding:0.5rem"></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-detail">
+        <div class="detail-panel" id="detailPanel">
+          <p style="color:var(--text-dim);text-align:center;padding:2rem">Nhấn vào một cung trên lá số để xem chi tiết
+            luận giải</p>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-prompt">
+        <div class="card">
+          <div class="card-title">🤖 Prompt gửi cho Gemini <span id="promptLen"
+              style="color:var(--accent3);font-size:0.7rem;margin-left:8px"></span></div>
+          <div class="prompt-preview" id="promptPreview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data store
+    let currentData = null;
+
+    // Main Stars list for highlighting
+    const MAIN_STARS = [
+      'Tử Vi', 'Thiên Cơ', 'Thái Dương', 'Vũ Khúc', 'Thiên Đồng', 'Liêm Trinh',
+      'Thiên Phủ', 'Thái Âm', 'Tham Lang', 'Cự Môn', 'Thiên Tướng', 'Thiên Lương',
+      'Thất Sát', 'Phá Quân'
+    ];
+    const HOA_STARS = ['Hóa Lộc', 'Hóa Quyền', 'Hóa Khoa', 'Hóa Kỵ'];
+
+    // Traditional layout order (clockwise from bottom-left)
+    // Row 0 (top):    TỊ(col0)    NGỌ(col1)   MÙI(col2)   THÂN(col3)
+    // Row 1:          THÌN(col0)  [center]     [center]    DẬU(col3)
+    // Row 2:          MÃO(col0)   [center]     [center]    TUẤT(col3)
+    // Row 3 (bottom): DẦN(col0)   SỬU(col1)   TÝ(col2)    HỢI(col3)
+
+    const CHI_GRID_POS = {
+      'Tỵ': { r: 0, c: 0 }, 'Ngọ': { r: 0, c: 1 }, 'Mùi': { r: 0, c: 2 }, 'Thân': { r: 0, c: 3 },
+      'Thìn': { r: 1, c: 0 }, 'Dậu': { r: 1, c: 3 },
+      'Mão': { r: 2, c: 0 }, 'Tuất': { r: 2, c: 3 },
+      'Dần': { r: 3, c: 0 }, 'Sửu': { r: 3, c: 1 }, 'Tý': { r: 3, c: 2 }, 'Hợi': { r: 3, c: 3 },
+    };
+
+    function renderPalaceGrid(palaces) {
+      const grid = document.getElementById('palaceGrid');
+      grid.innerHTML = '';
+
+      // Create 4x4 grid cells
+      const cells = Array.from({ length: 16 }, () => null);
+
+      // Map palaces to positions
+      Object.entries(palaces).forEach(([key, p]) => {
+        const pos = CHI_GRID_POS[p.chi];
+        if (pos) {
+          cells[pos.r * 4 + pos.c] = { key, ...p };
+        }
+      });
+
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const idx = r * 4 + c;
+
+          // Center cells
+          if ((r === 1 || r === 2) && (c === 1 || c === 2)) {
+            if (r === 1 && c === 1) {
+              const center = document.createElement('div');
+              center.className = 'palace-center';
+              center.innerHTML = `
+            <div class="big-text">${currentData.profile.name}</div>
+            <div class="sub-text">${currentData.profile.birth}</div>
+            <div class="sub-text" style="color:var(--accent)">${currentData.profile.cuc}</div>
+          `;
+              grid.appendChild(center);
+            }
+            continue;
+          }
+
+          const cell = document.createElement('div');
+          const palace = cells[idx];
+
+          if (palace) {
+            cell.className = 'palace-cell' + (palace.key === 'MENH' ? ' menh' : '') + (palace.isThan ? ' than' : '');
+            cell.onclick = () => showDetail(palace.key);
+
+            let starsHtml = '';
+            palace.stars.forEach(s => {
+              const isMain = MAIN_STARS.includes(s);
+              const isHoa = HOA_STARS.includes(s);
+              const cls = isMain ? 'star-tag main' : isHoa ? 'star-tag hoa' : 'star-tag';
+              starsHtml += `<span class="${cls}">${s}</span>`;
+            });
+
+            // Add combo tags
+            if (palace.mainStarsInterp) {
+              palace.mainStarsInterp.forEach(ms => {
+                (ms.combos || []).forEach(cb => {
+                  const shortCombo = cb.split(':')[0].trim();
+                  starsHtml += `<span class="star-tag combo">★ ${shortCombo}</span>`;
+                });
+              });
+            }
+
+            cell.innerHTML = `
+          <div class="palace-name">${palace.name}${palace.key === 'MENH' ? ' ⭐' : ''}${palace.isThan ? ' 🔹' : ''}</div>
+          <div class="palace-chi">${palace.chi}</div>
+          ${palace.ages ? `<div class="palace-ages">${palace.ages[0]}-${palace.ages[1]}</div>` : ''}
+          <div class="palace-stars">${starsHtml}</div>
+        `;
+          } else {
+            cell.className = 'palace-cell';
+            cell.innerHTML = '<div class="palace-name" style="color:var(--text-dim)">—</div>';
+          }
+
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    function showDetail(key) {
+      const palace = currentData.palaces[key];
+      if (!palace) return;
+
+      // Switch to detail tab
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-tab="detail"]').classList.add('active');
+      document.getElementById('tab-detail').classList.add('active');
+
+      const panel = document.getElementById('detailPanel');
+      let html = `
+    <div class="detail-palace-header">
+      <h3>${palace.name} (${palace.chi})</h3>
+      ${palace.ages ? `<span class="badge">Đại vận: ${palace.ages[0]} - ${palace.ages[1]}</span>` : ''}
+      ${palace.isThan ? '<span class="badge" style="background:rgba(6,182,212,0.15);color:var(--accent3)">Thân</span>' : ''}
+      ${key === 'MENH' ? '<span class="badge" style="background:rgba(245,158,11,0.15);color:var(--accent)">Mệnh</span>' : ''}
+    </div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">TẤT CẢ SAO TRONG CUNG:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+  `;
+      palace.stars.forEach(s => {
+        const isMain = MAIN_STARS.includes(s);
+        const isHoa = HOA_STARS.includes(s);
+        const cls = isMain ? 'star-tag main' : isHoa ? 'star-tag hoa' : 'star-tag';
+        html += `<span class="${cls}" style="font-size:0.72rem;padding:4px 8px">${s}</span>`;
+      });
+      html += '</div></div>';
+
+      if (palace.mainStarsInterp && palace.mainStarsInterp.length > 0) {
+        html += '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:8px">LUẬN GIẢI CHÍNH TINH:</div>';
+        palace.mainStarsInterp.forEach(ms => {
+          html += `<div class="interp-card">
+        <div class="star-name">${ms.starName}</div>
+        <div class="star-summary">${ms.summary}</div>
+        <div class="star-advice">💡 ${ms.advice}</div>`;
+          if (ms.combos && ms.combos.length > 0) {
+            html += '<div style="margin-top:6px">';
+            ms.combos.forEach(c => {
+              html += `<span class="combo-tag">★ ${c}</span>`;
+            });
+            html += '</div>';
+          }
+          html += '</div>';
+        });
+      }
+
+      panel.innerHTML = html;
+    }
+
+    function renderProfile(profile) {
+      const items = [
+        { label: 'Họ tên', value: profile.name },
+        { label: 'Ngày sinh', value: profile.birth },
+        { label: 'Cục', value: profile.cuc, highlight: true },
+        { label: 'Mệnh', value: profile.menh || '—', highlight: true },
+      ];
+      const grid = document.getElementById('profileGrid');
+      grid.innerHTML = items.map(i =>
+        `<div class="profile-item ${i.highlight ? 'highlight' : ''}">
+      <div class="label">${i.label}</div>
+      <div class="value">${i.value}</div>
+    </div>`
+      ).join('');
+      document.getElementById('profileCard').style.display = 'block';
+    }
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Form Submit
+    document.getElementById('birthForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang tính...';
+      document.getElementById('loading').classList.add('active');
+      document.getElementById('results').classList.add('hidden');
+
+      const day = document.getElementById('day').value;
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+
+      const payload = {
+        name: document.getElementById('name').value,
+        gender: document.getElementById('gender').value,
+        calendarType: document.getElementById('calendarType').value,
+        dob: `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`,
+        tob: document.getElementById('tob').value,
+        timeZone: parseInt(document.getElementById('timeZone').value),
+      };
+
+      try {
+        const res = await fetch('/api/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.error || 'Unknown error');
+
+        currentData = data;
+        currentData.promptFull = data.promptFull || data.promptPreview || '';
+        renderProfile(data.profile);
+        renderPalaceGrid(data.palaces);
+
+        // Prompt preview
+        document.getElementById('promptPreview').textContent = data.promptPreview || '';
+        document.getElementById('promptLen').textContent = `(${data.promptLength} chars)`;
+
+        // Render interpretation report
+        renderReport(data.report);
+
+        // Render visual chart
+        if (data.chartHTML) {
+          document.getElementById('lasoHinhContent').innerHTML = data.chartHTML;
+        }
+
+        document.getElementById('results').classList.remove('hidden');
+      } catch (err) {
+        alert('Lỗi: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ Lập Lá Số';
+        document.getElementById('loading').classList.remove('active');
+      }
+    });
+
+    // Render interpretation report — supports both old sections[] format and new Gemini markdown string
+    function renderReport(input) {
+      const container = document.getElementById('reportContent');
+      if (!input) {
+        container.innerHTML = '<p style="color:var(--text-dim)">Chưa có dữ liệu. Nhấn "Luận Giải AI" để tạo.</p>';
+        return;
+      }
+      // If it's a plain string (Gemini markdown output), convert to styled HTML
+      if (typeof input === 'string') {
+        const html = input
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/^### (.+)$/gm, '<h3 style="font-size:1rem;font-weight:800;color:var(--accent2);margin:1.5rem 0 0.5rem;padding-bottom:6px;border-bottom:1px solid var(--border)">$1</h3>')
+          .replace(/^## (.+)$/gm, '<h2 style="font-size:1.1rem;font-weight:800;color:var(--accent);margin:1.8rem 0 0.75rem;padding-bottom:8px;border-bottom:2px solid var(--accent)">$1</h2>')
+          .replace(/^# (.+)$/gm, '<h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 1rem">$1</h1>')
+          .replace(/^\* (.+)$/gm, '<li style="margin-bottom:6px;line-height:1.7;color:var(--text)">$1</li>')
+          .replace(/(<li[^>]*>.*<\/li>\n?)+/g, m => '<ul style="padding-left:1.4rem;margin:0.5rem 0">' + m + '</ul>')
+          .replace(/^--- (.+)$/gm, '<div style="font-weight:700;color:var(--accent3);margin:1rem 0 0.25rem">$1</div>')
+          .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:1.2rem 0">')
+          .replace(/\n\n/g, '</p><p style="color:var(--text);line-height:1.8;margin-bottom:0.75rem">')
+          .replace(/\n/g, '<br>');
+        container.innerHTML = `<div style="line-height:1.8;color:var(--text)"><p style="color:var(--text);line-height:1.8;margin-bottom:0.75rem">${html}</p></div>`;
+        return;
+      }
+      // Legacy sections[] format
+      if (!Array.isArray(input) || input.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-dim)">Không có dữ liệu luận giải.</p>';
+        return;
+      }
+      let html = '';
+      input.forEach(section => {
+        html += `<div style="margin-bottom:1.5rem">`;
+        html += `<h3 style="font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;padding-bottom:8px;border-bottom:1px solid var(--border)">${section.title}</h3>`;
+        section.items.forEach(item => {
+          html += `<div style="background:var(--bg);border-radius:8px;padding:12px 16px;margin-bottom:8px;border-left:3px solid var(--accent2)">`;
+          html += `<div style="font-weight:700;color:var(--accent);font-size:0.85rem;margin-bottom:4px">${item.label}</div>`;
+          html += `<div style="color:var(--text);font-size:0.82rem;line-height:1.6">${item.value}</div>`;
+          if (item.advice) html += `<div style="color:var(--accent3);font-size:0.78rem;margin-top:6px;font-style:italic">💡 ${item.advice}</div>`;
+          if (item.combos && item.combos.length > 0) {
+            html += '<div style="margin-top:6px">';
+            item.combos.forEach(c => { html += `<span style="display:inline-block;margin-right:4px;margin-bottom:4px;font-size:0.7rem;padding:3px 8px;border-radius:4px;background:rgba(16,185,129,0.12);color:var(--success);font-weight:600">★ ${c}</span>`; });
+            html += '</div>';
+          }
+          html += '</div>';
+        });
+        html += '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    // Call Gemini directly from browser
+    async function callGeminiReport() {
+      const apiKey = document.getElementById('geminiApiKey').value.trim();
+      if (!apiKey) { alert('Vui lòng nhập Gemini API Key'); return; }
+      if (!currentData) { alert('Chưa có dữ liệu lá số. Lập lá số trước.'); return; }
+
+      const btn = document.getElementById('geminiBtn');
+      const status = document.getElementById('geminiStatus');
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang gọi Gemini...';
+      status.textContent = '⏳ Đang gửi prompt...';
+      status.style.color = 'var(--accent3)';
+
+      // Use full prompt for Gemini (stored on currentData)
+      const prompt = currentData?.promptFull || document.getElementById('promptPreview').textContent;
+      if (!prompt) { status.textContent = '❌ Không có prompt. Lập lá số trước.'; btn.disabled = false; btn.textContent = '✨ Luận Giải AI'; return; }
+
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.8, maxOutputTokens: 16384 }
+            })
+          }
+        );
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('Không nhận được phản hồi từ Gemini.');
+
+        // Switch to report tab and render
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelector('[data-tab="report"]').classList.add('active');
+        document.getElementById('tab-report').classList.add('active');
+        renderReport(text);
+        status.textContent = `✅ Hoàn tất! (${text.length} chars)`;
+        status.style.color = 'var(--success)';
+      } catch (err) {
+        status.textContent = `❌ Lỗi: ${err.message}`;
+        status.style.color = 'var(--danger)';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Luận Giải AI';
+      }
+    }
+
+    // Enable Gemini button when API key is entered
+    document.getElementById('geminiApiKey').addEventListener('input', function () {
+      document.getElementById('geminiBtn').disabled = !this.value.trim() || !currentData;
+    });
+  </script>
+</body>
+
+</html>

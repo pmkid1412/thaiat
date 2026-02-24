@@ -1,0 +1,94 @@
+services:
+  app-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: be-app-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      APP_ENV: dev
+      DB_HOST: mysql-dev
+      DB_PORT: 3306
+      DB_USERNAME: dev_user
+      DB_PASSWORD: dev_pass
+      DB_NAME: dev_db
+      JWT_SECRET: ${JWT_SECRET_DEV}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET_DEV}
+      JWT_EXPIRY: ${JWT_EXPIRY_DEV}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY_DEV}
+      REDIS_HOST: redis-dev
+      REDIS_PORT: 6379
+      TZ: ${TZ}
+      MAIL_HOST: ${MAIL_HOST_DEV}
+      MAIL_PORT: ${MAIL_PORT_DEV}
+      MAIL_USER: ${MAIL_USER_DEV}
+      MAIL_PASS: ${MAIL_PASS_DEV}
+      MAIL_FROM: ${MAIL_FROM_DEV}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - mysql-dev
+    networks:
+      - devnet
+
+  cms-dev:
+    build:
+      context: ../../TUVI_CMS_FE
+      dockerfile: docker/Dockerfile
+    container_name: cms-dev
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    networks:
+      - devnet
+
+  mysql-dev:
+    image: mysql:9.4
+    container_name: mysql-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev
+      MYSQL_DATABASE: dev_db
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_pass
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - devnet
+
+  phpmyadmin-dev:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-dev
+    restart: unless-stopped
+    depends_on:
+      - mysql-dev
+    environment:
+      PMA_HOST: mysql-dev
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    networks:
+      - devnet
+
+  redis-dev:
+    image: redis:8.2
+    container_name: redis-dev
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6380:6379"
+    networks:
+      - devnet
+
+volumes:
+  mysql_dev_data:
+  redis_dev_data:
+
+networks:
+  devnet:
+    driver: bridge

@@ -1,0 +1,134 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: be-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      APP_ENV: ${APP_ENV}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_EXPIRY: ${JWT_EXPIRY}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY}
+      TZ: ${TZ}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      APPLE_CLIENT_ID: ${APPLE_CLIENT_ID}
+      APPLE_CLIENT_ID_2: ${APPLE_CLIENT_ID_2}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      MAIL_FROM: ${MAIL_FROM}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PREDICTION_TOOL_PATH: ${PREDICTION_TOOL_PATH}
+      INVESTMENT_ADVICE_TOOL_URL: ${INVESTMENT_ADVICE_TOOL_URL}
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
+      TOKEN_HASH_SECRET: ${TOKEN_HASH_SECRET}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
+      FIREBASE_DATABASE_URL: ${FIREBASE_DATABASE_URL}
+    volumes:
+      - ../uploads:/usr/src/app/uploads
+      - ../tools:/usr/src/app/tools
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - appnet
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - app
+      - phpmyadmin
+      - cms
+    networks:
+      - appnet
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --deploy-hook \"docker exec nginx nginx -s reload\"; done;'"
+    networks:
+      - appnet
+
+  mysql:
+    image: mysql:9.4
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ../mysql_data:/var/lib/mysql
+    networks:
+      - appnet
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    networks:
+      - appnet
+
+  redis:
+    image: redis:8.2
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+    networks:
+      - appnet
+  cms:
+    build:
+      context: ../../TUVI_CMS_FE
+      dockerfile: docker/Dockerfile
+    container_name: cms-app
+    restart: unless-stopped
+    networks:
+      - appnet
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  appnet:

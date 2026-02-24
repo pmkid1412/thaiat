@@ -1,0 +1,189 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+// body {
+//   --tt-toolbar-height: 44px;
+//   --tt-theme-text: var(--tt-gray-light-900);
+
+//   .dark & {
+//     --tt-theme-text: var(--tt-gray-dark-900);
+//   }
+// }
+
+// body {
+//   font-family: "Inter", sans-serif;
+//   color: var(--tt-theme-text);
+//   font-optical-sizing: auto;
+//   font-weight: 400;
+//   font-style: normal;
+//   padding: 0;
+//   overscroll-behavior-y: none;
+// }
+
+html,
+body {
+  overscroll-behavior-x: none;
+}
+
+html,
+body,
+#root,
+#app {
+  height: 100%;
+  background-color: var(--tt-bg-color);
+}
+
+::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tt-scrollbar-color) transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--tt-scrollbar-color);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tiptap.ProseMirror {
+  font-family: "DM Sans", sans-serif;
+}
+
+.simple-editor-wrapper {
+  max-width: 100%;
+  max-height: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: height 0.2s ease;
+}
+
+.simple-editor-wrapper > div:first-child {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.simple-editor-fullscreen {
+  max-height: 95vh !important;
+  height: 95vh;
+  width: 100%;
+}
+
+.simple-editor-resize-handle {
+  position: relative;
+  height: 12px;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  flex-shrink: 0;
+  pointer-events: auto;
+  transition: background-color 0.15s ease;
+  margin-top: -1px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+
+  &:active {
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+
+  &:hover .simple-editor-resize-line {
+    background-color: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active .simple-editor-resize-line {
+    background-color: rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.simple-editor-resize-line {
+  width: 40px;
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.simple-editor-content {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  word-break: break-all;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor {
+  flex: 1;
+  padding: 1rem 1rem 20vh;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  cursor: text;
+  pointer-events: auto; /* Ensure editor receives mouse events */
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor * {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* Ensure text selection works properly */
+.simple-editor-content .tiptap.ProseMirror.simple-editor p,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h1,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h2,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h3,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h4,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h5,
+.simple-editor-content .tiptap.ProseMirror.simple-editor h6,
+.simple-editor-content .tiptap.ProseMirror.simple-editor blockquote,
+.simple-editor-content .tiptap.ProseMirror.simple-editor ul,
+.simple-editor-content .tiptap.ProseMirror.simple-editor ol,
+.simple-editor-content .tiptap.ProseMirror.simple-editor li {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* Custom selection colors */
+.simple-editor-content .tiptap.ProseMirror.simple-editor::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: inherit;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor::-moz-selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: inherit;
+}
+
+@media screen and (max-width: 480px) {
+  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 1rem 1.5rem 30vh;
+  }
+}
+

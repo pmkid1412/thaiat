@@ -1,0 +1,47 @@
+services:
+  mysql:
+    image: mysql:9.4
+    container_name: tuvi-mysql-local
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tuvi
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin123
+    volumes:
+      - mysql_local_data:/var/lib/mysql
+      - ../tuvi_dump.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3307:3306"
+    networks:
+      - tuvi-local
+
+  redis:
+    image: redis:8.2
+    container_name: tuvi-redis-local
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6380:6379"
+    networks:
+      - tuvi-local
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: tuvi-phpmyadmin-local
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    networks:
+      - tuvi-local
+
+volumes:
+  mysql_local_data:
+
+networks:
+  tuvi-local:

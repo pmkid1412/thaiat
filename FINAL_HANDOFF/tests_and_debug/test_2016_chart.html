@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+<title>Lá Số Tử Vi - Test 2016</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f0e8;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; padding: 8px;
+  }
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, auto);
+    gap: 0;
+    max-width: 720px;
+    width: 100%;
+    border: 2px solid #8b4513;
+    background: #fff;
+  }
+  .cell {
+    border: 1px solid #c9a96e;
+    padding: 4px 5px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    background: #fffdf5;
+    position: relative;
+    overflow: hidden;
+  }
+  .cell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+    border-bottom: 1px solid #e8d8b8;
+    padding-bottom: 2px;
+  }
+  .palace-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: #5d4037;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .palace-name.menh {
+    color: #c62828;
+    font-weight: 800;
+    font-size: 11px;
+  }
+  .palace-name.than {
+    color: #e65100;
+    font-weight: 800;
+  }
+  .chi-label {
+    font-size: 9px;
+    color: #8d6e63;
+    font-weight: 500;
+  }
+  .dai-van {
+    font-size: 8px;
+    color: #999;
+    font-style: italic;
+  }
+  .main-stars {
+    font-size: 11px;
+    line-height: 1.5;
+    flex: 0 0 auto;
+    margin-bottom: 2px;
+  }
+  .main-stars span { font-weight: bold; }
+  .aux-stars {
+    font-size: 9px;
+    line-height: 1.5;
+    flex: 1;
+    color: #555;
+  }
+  .cell-footer {
+    display: flex;
+    gap: 3px;
+    margin-top: auto;
+  }
+  .than-badge {
+    background: #e65100;
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+  .marker {
+    font-size: 7px;
+    font-weight: 700;
+    padding: 1px 3px;
+    border-radius: 2px;
+  }
+  .marker.triet { background: #ffcdd2; color: #b71c1c; }
+  .marker.tuan { background: #fff9c4; color: #f57f17; }
+
+  /* Center panel */
+  .center {
+    border: 1px solid #c9a96e;
+    background: linear-gradient(135deg, #fffdf5 0%, #f5efe3 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+  .center-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #8b4513;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .info-table {
+    font-size: 10px;
+    border-collapse: collapse;
+    margin-bottom: 6px;
+  }
+  .info-table td {
+    padding: 1px 6px 1px 0;
+    vertical-align: top;
+  }
+  .info-table td:first-child {
+    color: #8d6e63;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .center-meta {
+    font-size: 9px;
+    text-align: center;
+    color: #5d4037;
+    margin-top: 4px;
+    line-height: 1.6;
+  }
+  .center-tuHoa {
+    font-size: 8px;
+    color: #e65100;
+    margin-top: 4px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  @media (max-width: 400px) {
+    .main-stars { font-size: 9px; }
+    .aux-stars { font-size: 7px; }
+    .palace-name { font-size: 8px; }
+    .cell { min-height: 80px; padding: 2px 3px; }
+    .center-title { font-size: 13px; }
+    .info-table { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="chart-grid">
+
+    <div class="cell" style="grid-row:4;grid-column:4;">
+      <div class="cell-header">
+        <span class="dai-van">3-12</span>
+        <span class="palace-name menh ">MỆNH</span>
+        <span class="chi-label">Hợi</span>
+      </div>
+      <div class="main-stars"><span style="color:#1a237e;font-weight:bold">Tử Vi</span> <span style="color:#c62828;font-weight:bold">Thất Sát</span></div>
+      <div class="aux-stars"><span style="color:#2e7d32;font-weight:normal">Thiên Khôi</span> <span style="color:#333;font-weight:normal">Cô Thần</span> <span style="color:#2e7d32;font-weight:normal">Văn Khúc</span> <span style="color:#333;font-weight:normal">Ân Quang</span> <span style="color:#333;font-weight:normal">Thiếu Âm</span> <span style="color:#333;font-weight:normal">Phi Liêm</span> <span style="color:#333;font-weight:normal">Trường Sinh</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:4;grid-column:3;">
+      <div class="cell-header">
+        <span class="dai-van">13-22</span>
+        <span class="palace-name  ">PHỤ MẪU</span>
+        <span class="chi-label">Tý</span>
+      </div>
+      <div class="main-stars"></div>
+      <div class="aux-stars"><span style="color:#333;font-weight:normal">Thiên Phúc</span> <span style="color:#333;font-weight:normal">Tướng Tinh</span> <span style="color:#333;font-weight:normal">Long Trì</span> <span style="color:#333;font-weight:normal">Quan Phù</span> <span style="color:#333;font-weight:normal">Hỷ Thần</span> <span style="color:#333;font-weight:normal">Mộc Dục</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:4;grid-column:2;">
+      <div class="cell-header">
+        <span class="dai-van">23-32</span>
+        <span class="palace-name  than">PHÚC ĐỨC</span>
+        <span class="chi-label">Sửu</span>
+      </div>
+      <div class="main-stars"></div>
+      <div class="aux-stars"><span style="color:#333;font-weight:normal">Quốc Ấn</span> <span style="color:#333;font-weight:normal">Nguyệt Đức</span> <span style="color:#ad1457;font-weight:normal">Thiên Hỷ</span> <span style="color:#333;font-weight:normal">Thiên Hình</span> <span style="color:#333;font-weight:normal">Thiên Quý</span> <span style="color:#333;font-weight:normal">Thai Phụ</span> <span style="color:#333;font-weight:normal">Tử Phù</span> <span style="color:#333;font-weight:normal">Bệnh Phù</span> <span style="color:#333;font-weight:normal">Quan Đới</span></div>
+      <div class="cell-footer">
+        <span class="than-badge">THÂN</span>
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:4;grid-column:1;">
+      <div class="cell-header">
+        <span class="dai-van">33-42</span>
+        <span class="palace-name  ">ĐIỀN TRẠCH</span>
+        <span class="chi-label">Dần</span>
+      </div>
+      <div class="main-stars"></div>
+      <div class="aux-stars"><span style="color:#2e7d32;font-weight:normal">Thiên Mã</span> <span style="color:#333;font-weight:normal">Phượng Các</span> <span style="color:#333;font-weight:normal">Thiên Hư</span> <span style="color:#333;font-weight:normal">Tuế Phá</span> <span style="color:#333;font-weight:normal">Đại Hao</span> <span style="color:#333;font-weight:normal">Lâm Quan</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:3;grid-column:1;">
+      <div class="cell-header">
+        <span class="dai-van">43-52</span>
+        <span class="palace-name  ">QUAN LỘC</span>
+        <span class="chi-label">Mão</span>
+      </div>
+      <div class="main-stars"><span style="color:#1a237e;font-weight:bold">Liêm Trinh</span> <span style="color:#c62828;font-weight:bold">Phá Quân</span></div>
+      <div class="aux-stars"><span style="color:#2e7d32;font-weight:normal">Văn Xương</span> <span style="color:#c62828;font-weight:normal">Linh Tinh</span> <span style="color:#333;font-weight:normal">Long Đức</span> <span style="color:#333;font-weight:normal">Phục Binh</span> <span style="color:#333;font-weight:normal">Đế Vượng</span> <span style="color:#e65100;font-weight:normal">Hóa Khoa</span> <span style="color:#b71c1c;font-weight:normal">Hóa Kỵ</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:2;grid-column:1;">
+      <div class="cell-header">
+        <span class="dai-van">53-62</span>
+        <span class="palace-name  ">NÔ BỘC</span>
+        <span class="chi-label">Thìn</span>
+      </div>
+      <div class="main-stars"></div>
+      <div class="aux-stars"><span style="color:#c62828;font-weight:normal">Đà La</span> <span style="color:#333;font-weight:normal">Hoa Cái</span> <span style="color:#c62828;font-weight:normal">Địa Không</span> <span style="color:#333;font-weight:normal">Bạch Hổ</span> <span style="color:#333;font-weight:normal">Quan Phủ</span> <span style="color:#333;font-weight:normal">Suy</span></div>
+      <div class="cell-footer">
+        
+        <span class="marker triet">Triệt</span><span class="marker tuan">Tuần</span>
+      </div>
+    </div>
+    <div class="cell" style="grid-row:1;grid-column:1;">
+      <div class="cell-header">
+        <span class="dai-van">63-72</span>
+        <span class="palace-name  ">THIÊN DI</span>
+        <span class="chi-label">Tỵ</span>
+      </div>
+      <div class="main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Phủ</span></div>
+      <div class="aux-stars"><span style="color:#2e7d32;font-weight:normal">Lộc Tồn</span> <span style="color:#333;font-weight:normal">Thiên Quan</span> <span style="color:#333;font-weight:normal">Thiên Trù</span> <span style="color:#333;font-weight:normal">Kiếp Sát</span> <span style="color:#333;font-weight:normal">Thiên Đức</span> <span style="color:#ad1457;font-weight:normal">Thiên Diêu</span> <span style="color:#333;font-weight:normal">Phúc Đức</span> <span style="color:#333;font-weight:normal">Bác Sỹ</span> <span style="color:#333;font-weight:normal">Bệnh</span></div>
+      <div class="cell-footer">
+        
+        <span class="marker triet">Triệt</span><span class="marker tuan">Tuần</span>
+      </div>
+    </div>
+    <div class="cell" style="grid-row:1;grid-column:2;">
+      <div class="cell-header">
+        <span class="dai-van">73-82</span>
+        <span class="palace-name  ">TẬT ÁCH</span>
+        <span class="chi-label">Ngọ</span>
+      </div>
+      <div class="main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Đồng</span> <span style="color:#1a237e;font-weight:bold">Thái Âm</span></div>
+      <div class="aux-stars"><span style="color:#c62828;font-weight:normal">Kình Dương</span> <span style="color:#2e7d32;font-weight:normal">Hữu Bật</span> <span style="color:#c62828;font-weight:normal">Địa Kiếp</span> <span style="color:#333;font-weight:normal">Điếu Khách</span> <span style="color:#333;font-weight:normal">Lực Sỹ</span> <span style="color:#333;font-weight:normal">Tử</span> <span style="color:#e65100;font-weight:normal">Hóa Lộc</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:1;grid-column:3;">
+      <div class="cell-header">
+        <span class="dai-van">83-92</span>
+        <span class="palace-name  ">TÀI BẠCH</span>
+        <span class="chi-label">Mùi</span>
+      </div>
+      <div class="main-stars"><span style="color:#1a237e;font-weight:bold">Vũ Khúc</span> <span style="color:#1a237e;font-weight:bold">Tham Lang</span></div>
+      <div class="aux-stars"><span style="color:#333;font-weight:normal">Lưu Hà</span> <span style="color:#ad1457;font-weight:normal">Hồng Loan</span> <span style="color:#333;font-weight:normal">Quả Tú</span> <span style="color:#333;font-weight:normal">Trực Phù</span> <span style="color:#333;font-weight:normal">Thanh Long</span> <span style="color:#333;font-weight:normal">Mộ</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:1;grid-column:4;">
+      <div class="cell-header">
+        <span class="dai-van">93-102</span>
+        <span class="palace-name  ">TỬ TỨC</span>
+        <span class="chi-label">Thân</span>
+      </div>
+      <div class="main-stars"><span style="color:#1a237e;font-weight:bold">Thái Dương</span> <span style="color:#1a237e;font-weight:bold">Cự Môn</span></div>
+      <div class="aux-stars"><span style="color:#333;font-weight:normal">Lưu Niên Văn Tinh</span> <span style="color:#2e7d32;font-weight:normal">Tả Phù</span> <span style="color:#333;font-weight:normal">Thái Tuế</span> <span style="color:#333;font-weight:normal">Tiểu Hao</span> <span style="color:#333;font-weight:normal">Tuyệt</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:2;grid-column:4;">
+      <div class="cell-header">
+        <span class="dai-van">103-112</span>
+        <span class="palace-name  ">PHU THÊ</span>
+        <span class="chi-label">Dậu</span>
+      </div>
+      <div class="main-stars"><span style="color:#1a237e;font-weight:bold">Thiên Tướng</span></div>
+      <div class="aux-stars"><span style="color:#2e7d32;font-weight:normal">Thiên Việt</span> <span style="color:#ad1457;font-weight:normal">Đào Hoa</span> <span style="color:#333;font-weight:normal">Thiên Không (Đức)</span> <span style="color:#333;font-weight:normal">Phá Toái</span> <span style="color:#333;font-weight:normal">Phong Cáo</span> <span style="color:#c62828;font-weight:normal">Hỏa Tinh</span> <span style="color:#333;font-weight:normal">Thiếu Dương</span> <span style="color:#333;font-weight:normal">Tướng Quân</span> <span style="color:#333;font-weight:normal">Thai</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+    <div class="cell" style="grid-row:3;grid-column:4;">
+      <div class="cell-header">
+        <span class="dai-van">113-122</span>
+        <span class="palace-name  ">HUYNH ĐỆ</span>
+        <span class="chi-label">Tuất</span>
+      </div>
+      <div class="main-stars"></div>
+      <div class="aux-stars"><span style="color:#333;font-weight:normal">Đường Phù</span> <span style="color:#333;font-weight:normal">Thiên Khốc</span> <span style="color:#333;font-weight:normal">Tang Môn</span> <span style="color:#333;font-weight:normal">Tấu Thư</span> <span style="color:#333;font-weight:normal">Dưỡng</span></div>
+      <div class="cell-footer">
+        
+        
+      </div>
+    </div>
+
+  <div class="center" style="grid-row:2/4;grid-column:2/4;">
+    <div class="center-title">LÁ SỐ TỬ VI</div>
+    <table class="info-table">
+      <tr><td>Họ tên:</td><td><b>Test 2016</b></td></tr>
+      <tr><td>Năm:</td><td>2016 [Bính Thân]</td></tr>
+      <tr><td>Tháng:</td><td>5</td></tr>
+      <tr><td>Ngày:</td><td>22</td></tr>
+      <tr><td>Giờ sinh:</td><td>Mùi (14:00)</td></tr>
+      <tr><td>Giới tính:</td><td>Nam</td></tr>
+    </table>
+    <div class="center-meta">
+      <div>Cục: <b>Mộc Tam Cục</b></div>
+      <div>Mệnh tại <b>[Hợi]</b> — Chủ tinh: <b>Tử Vi</b></div>
+      <div>Thân cư: <b>Phúc Đức (Sửu)</b></div>
+    </div>
+    <div class="center-tuHoa">Lộc: Thiên Đồng | Quyền: Thiên Cơ | Khoa: Văn Xương | Kỵ: Liêm Trinh</div>
+  </div>
+</div>
+</body>
+</html>
