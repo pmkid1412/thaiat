@@ -17,15 +17,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { configKeys } from "@/services/queries/config.query";
 import type { ConfigItem } from "@/services/types";
-import { Bot, MonitorCog, Sparkles } from "lucide-react";
+import { Bot, MonitorCog, ShieldCheck, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_dashboard/configs")({
   component: RouteComponent,
 });
 
 const AI_PROVIDER_CODES = ["AI_API_KEY", "OPENAI_API_KEY", "AI_PROVIDER_DEFAULT"];
+const DUMMY_DATA_CODE = "DUMMY_DATA_ENABLED";
 
 function RouteComponent() {
   useMeta({ title: "Cài đặt" });
@@ -61,12 +64,24 @@ function RouteComponent() {
     queryClient.invalidateQueries({ queryKey: configKeys.all });
   };
 
+  // Dummy data toggle
+  const dummyConfig = configs?.find((c) => c.code === DUMMY_DATA_CODE);
+  const isDummyEnabled = dummyConfig?.value === "true";
+  const handleDummyToggle = async (checked: boolean) => {
+    await updateConfig({
+      code: DUMMY_DATA_CODE,
+      value: checked ? "true" : "false",
+    });
+    queryClient.invalidateQueries({ queryKey: configKeys.all });
+  };
+
   // Filter configs into sections
   const normalConfigs =
     configs?.filter(
       (config) =>
         !config.code.startsWith("INVESTMENT_TOOL_") &&
-        !AI_PROVIDER_CODES.includes(config.code)
+        !AI_PROVIDER_CODES.includes(config.code) &&
+        config.code !== DUMMY_DATA_CODE
     ) || [];
   const aiProviderConfigs =
     configs?.filter((config) => AI_PROVIDER_CODES.includes(config.code)) || [];
@@ -100,6 +115,55 @@ function RouteComponent() {
               data={normalConfigs || []}
               onEdit={handleEdit}
             />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Apple Review — Dummy Data Toggle */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-1.5 font-medium">
+            <ShieldCheck size={18} className="text-muted-foreground" /> Apple
+            Review Mode
+          </CardTitle>
+          <CardDescription>
+            Bật chế độ dummy để vượt Apple review — tử vi trả về nội dung chung
+            chung
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Spinner className="size-8" />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Chế độ Dummy Data</p>
+                <p className="text-xs text-muted-foreground">
+                  Khi bật, API tử vi trả về lời khuyên sống tích cực thay vì
+                  phân tích tử vi thật
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge
+                  variant={isDummyEnabled ? "default" : "secondary"}
+                  className={
+                    isDummyEnabled
+                      ? "bg-amber-500 hover:bg-amber-500"
+                      : ""
+                  }
+                >
+                  {isDummyEnabled ? "ĐANG BẬT" : "TẮT"}
+                </Badge>
+                <Switch
+                  checked={isDummyEnabled}
+                  onCheckedChange={handleDummyToggle}
+                  disabled={isUpdating}
+                />
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

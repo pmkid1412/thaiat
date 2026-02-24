@@ -69,6 +69,7 @@ export class SystemConfigService {
       SystemConfigCode.AI_API_KEY,
       SystemConfigCode.OPENAI_API_KEY,
       SystemConfigCode.AI_PROVIDER_DEFAULT,
+      SystemConfigCode.DUMMY_DATA_ENABLED,
     ];
     let value = dto.value;
     if (stringCodes.includes(code)) {
@@ -156,6 +157,7 @@ export class SystemConfigService {
       SystemConfigCode.INVESTMENT_TOOL_BY_HOUR_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_DAY_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_YEAR_FILE,
+      SystemConfigCode.DUMMY_DATA_ENABLED,
     ];
   }
 
@@ -201,6 +203,11 @@ export class SystemConfigService {
         name: 'File ranging theo năm',
         valueType: 'file',
         description: 'File dùng cho tool đầu tư',
+      },
+      [SystemConfigCode.DUMMY_DATA_ENABLED]: {
+        name: 'Chế độ Dummy Data (Apple Review)',
+        valueType: 'string',
+        description: 'Bật: true | Tắt: false — Khi bật, tử vi trả về nội dung chung chung để bypass Apple review',
       },
     };
 

@@ -11,6 +11,7 @@ import {
   User,
   UserHoroscope,
 } from 'src/database/entities/index.entity';
+import { SystemConfig } from 'src/database/entities/system-config.entity';
 import { RetrieveHoroscopeResponseDto } from './dto/retrieve-horoscope.dto';
 import { ErrorResponseMessage } from 'src/common/constants/message.constant';
 import { ValidatorUtil } from 'src/common/utils/validator.util';
@@ -23,8 +24,14 @@ import {
   HoroscopePredictionMode,
   HoroscopePredictionType,
 } from 'src/common/constants/horoscope.constant';
+import { SystemConfigCode } from 'src/common/constants/system-config.constant';
 import { PredictHoroscopeJob } from '../task/jobs/predict-horoscope.job';
 import { LunarCalendarUtil } from 'src/common/utils/lunar-calendar.util';
+import {
+  DUMMY_DAILY,
+  DUMMY_MONTHLY,
+  DUMMY_LIFETIME_HTML,
+} from 'src/common/constants/dummy-horoscope.data';
 
 @Injectable()
 export class HoroscopeService {
@@ -34,9 +41,18 @@ export class HoroscopeService {
     private readonly userHoroscopeRepository: Repository<UserHoroscope>,
     @InjectRepository(HoroscopePrediction)
     private readonly horoscopePredictionRepository: Repository<HoroscopePrediction>,
+    @InjectRepository(SystemConfig)
+    private readonly systemConfigRepository: Repository<SystemConfig>,
     private readonly predictHoroscopeService: PredictHoroscopeService,
     private readonly predictHoroscopeJob: PredictHoroscopeJob,
-  ) {}
+  ) { }
+
+  private async isDummyMode(): Promise<boolean> {
+    const config = await this.systemConfigRepository.findOne({
+      where: { code: SystemConfigCode.DUMMY_DATA_ENABLED },
+    });
+    return config?.value === 'true';
+  }
 
   async run() {
     await this.predictHoroscopeService.predict();
@@ -126,8 +142,10 @@ export class HoroscopeService {
   }
 
   async getHoroscopeToday(currentUser: any) {
-    // temporary prevent get horoscope
-    // throw new InternalServerErrorException('Tính năng đang phát triển'); // UNLOCKED
+    // Dummy mode: return generic self-help data for Apple review
+    if (await this.isDummyMode()) {
+      return { ...DUMMY_DAILY, date: new Date().toISOString().split('T')[0] };
+    }
 
     const horoscope = await this.userHoroscopeRepository.findOne({
       where: {
@@ -176,8 +194,10 @@ export class HoroscopeService {
   }
 
   async getHoroscopeThisMonth(currentUser: any) {
-    // temporary prevent get horoscope
-    // throw new InternalServerErrorException('Tính năng đang phát triển'); // UNLOCKED
+    // Dummy mode: return generic self-help data for Apple review
+    if (await this.isDummyMode()) {
+      return DUMMY_MONTHLY;
+    }
 
     if (currentUser.type !== UserType.PRO) {
       throw new NotFoundException(ErrorResponseMessage.DATA_NOT_FOUND);
@@ -233,8 +253,10 @@ export class HoroscopeService {
   }
 
   async getHoroscopeThisYear(currentUser: any) {
-    // temporary prevent get horoscope
-    // throw new InternalServerErrorException('Tính năng đang phát triển'); // UNLOCKED
+    // Dummy mode: return generic self-help data for Apple review
+    if (await this.isDummyMode()) {
+      return { html_report: DUMMY_LIFETIME_HTML };
+    }
 
     if (currentUser.type !== UserType.PRO) {
       throw new NotFoundException(ErrorResponseMessage.DATA_NOT_FOUND);
