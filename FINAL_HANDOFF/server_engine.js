@@ -188,21 +188,20 @@ async function run() {
 
                     // Build HTML report with ENGINE DATA as immutable headers
                     const finalHtml = `
-                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <html>
                 <head>
                     <meta charset='utf-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
                     <title>Báo Cáo Tử Vi - ${profile.name || ''}</title>
                     <style>
-                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 20px; }
-                        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-                        h2 { color: #2980b9; margin-top: 30px; border-left: 5px solid #3498db; padding-left: 10px; }
-                        h3 { color: #16a085; border-bottom: 1px dashed #16a085; padding-bottom: 5px; display: inline-block; }
-                        .section { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-                        .palace { margin-bottom: 25px; padding: 15px; border-left: 4px solid #e67e22; background: #fdf5e6; border-radius: 4px; }
-                        .palace h3 { color: #d35400; border-bottom: none; margin-bottom: 5px; }
-                        .palace .stars { color: #7f8c8d; font-style: italic; margin-bottom: 10px; font-size: 0.9em; }
-                        .analysis { margin-top: 8px; }
-                        strong, b { color: #d35400; font-weight: 700; }
+                        body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 16px; font-size: 15px; }
+                        h2 { color: #8B4513; margin-top: 24px; border-left: 4px solid #C0392B; padding-left: 10px; font-size: 17px; }
+                        h3 { color: #C0392B; font-size: 16px; margin-bottom: 4px; }
+                        .section { margin-bottom: 16px; }
+                        .palace { margin-bottom: 20px; padding: 12px; border-radius: 6px; }
+                        .palace .stars { color: #888; font-style: italic; margin-bottom: 8px; font-size: 0.9em; }
+                        .analysis { margin-top: 6px; }
+                        strong, b { color: inherit; font-weight: 600; }
                     </style>
                 </head>
                 <body>
