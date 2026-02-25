@@ -5,6 +5,7 @@ import {
   Body,
   BadRequestException,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -24,8 +25,10 @@ import {
   SendEmailResetPasswordRequestDto,
   VerifyPasswordResetCodeRequestDto,
 } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { ErrorResponseMessage } from 'src/common/constants/message.constant';
 import { ValidatorUtil } from 'src/common/utils/validator.util';
+import { AdminGuard } from 'src/common/guards/index.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -125,5 +128,12 @@ export class AuthController {
   @ApiBaseResponse({})
   updatePassword(@Body() body: ResetPasswordRequestDto) {
     return this.authService.updatePassword(body);
+  }
+
+  @Post('change-password')
+  @UseGuards(AdminGuard)
+  @ApiBaseResponse({})
+  changePassword(@Body() body: ChangePasswordDto, @Req() req) {
+    return this.authService.changePassword(req.user.id, body);
   }
 }

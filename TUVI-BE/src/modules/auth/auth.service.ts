@@ -40,6 +40,7 @@ import {
   SendEmailResetPasswordRequestDto,
   VerifyPasswordResetCodeRequestDto,
 } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { ErrorResponseMessage } from 'src/common/constants/message.constant';
 import { randomUUID } from 'crypto';
 import { Request } from 'express';
@@ -495,6 +496,33 @@ export class AuthService {
       password: newPasswordHash,
       passwordResetCode: null,
       passwordResetCodeExpires: null,
+    });
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const { currentPassword, newPassword } = dto;
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new BadRequestException(ErrorResponseMessage.DATA_NOT_FOUND);
+    }
+
+    const isCurrentPasswordValid = await PasswordUtil.compare(
+      currentPassword,
+      user.password,
+    );
+    if (!isCurrentPasswordValid) {
+      const validationError = ValidatorUtil.addCustomError('currentPassword', {
+        isInvalid: 'Mật khẩu hiện tại không đúng',
+      });
+      throw new BadRequestException({ errors: [validationError] });
+    }
+
+    const newPasswordHash = await PasswordUtil.hash(newPassword);
+    await this.userRepository.update(user.id, {
+      password: newPasswordHash,
     });
   }
 

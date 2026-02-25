@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ROUTES } from "@/shared/constants";
 import type { LoginData } from "@/shared/schemas/login.schema";
 import { saveTokenToCookie } from "@/shared/utils/cookiesHelper";
-import { login } from "../api/auth.api";
+import { login, changePassword } from "../api/auth.api";
 
 export const useLoginQuery = () => {
   const navigate = useNavigate();
@@ -24,6 +24,23 @@ export const useLoginQuery = () => {
     onError: (error: any) => {
       if (error.code === 400) {
         toast.error("Email hoặc mật khẩu không đúng");
+      } else {
+        toast.error(error.message || "Đã xảy ra lỗi");
+      }
+    },
+  });
+};
+
+export const useChangePasswordMutation = () => {
+  return useMutation({
+    mutationKey: ["changePassword"],
+    mutationFn: changePassword,
+    onSuccess: () => {
+      toast.success("Đổi mật khẩu thành công");
+    },
+    onError: (error: any) => {
+      if (error.code === 400) {
+        toast.error(error.errors?.[0]?.constraints?.isInvalid || "Mật khẩu hiện tại không đúng");
       } else {
         toast.error(error.message || "Đã xảy ra lỗi");
       }
