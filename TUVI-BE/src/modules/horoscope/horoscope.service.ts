@@ -80,6 +80,18 @@ export class HoroscopeService {
       throw new NotFoundException(ErrorResponseMessage.DATA_NOT_FOUND);
     }
 
+    // Fire-and-forget: pre-warm prediction cache for all 3 tabs (day/month/year)
+    // singlePredict already skips if prediction exists, so this is safe
+    this.predictHoroscopeJob
+      .singlePredict(currentUser.id, [
+        HoroscopePredictionType.DAILY,
+        HoroscopePredictionType.MONTHLY,
+        HoroscopePredictionType.LIFETIME,
+      ])
+      .catch((err) =>
+        console.error('Cache warming failed (non-blocking):', err),
+      );
+
     return horoscope;
   }
 

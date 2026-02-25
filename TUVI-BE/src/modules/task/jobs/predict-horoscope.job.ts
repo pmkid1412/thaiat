@@ -97,26 +97,25 @@ export class PredictHoroscopeJob {
   async singlePredict(userId: number, predictionTypes: string[] = []) {
     const startTime = new Date().getTime();
     const env = await this.getEnv();
-    console.log('env', env);
 
-    console.log('Start predict horoscope');
+    console.log('Start predict horoscope (parallel)');
     const now = new Date();
-    // Daily prediction
-    if (predictionTypes.includes(HoroscopePredictionType.DAILY)) {
-      await this.predictDaily(env, now, userId);
-    }
-
-    // Monthly prediction
     const thisMonth = now.getUTCMonth() + 1;
     const thisYear = now.getUTCFullYear();
+
+    // Run all prediction types in PARALLEL
+    const promises: Promise<any>[] = [];
+    if (predictionTypes.includes(HoroscopePredictionType.DAILY)) {
+      promises.push(this.predictDaily(env, now, userId));
+    }
     if (predictionTypes.includes(HoroscopePredictionType.MONTHLY)) {
-      await this.predictMonthly(env, thisMonth, thisYear, userId);
+      promises.push(this.predictMonthly(env, thisMonth, thisYear, userId));
+    }
+    if (predictionTypes.includes(HoroscopePredictionType.LIFETIME)) {
+      promises.push(this.predictYearly(env, thisYear, userId));
     }
 
-    // Yearly prediction
-    if (predictionTypes.includes(HoroscopePredictionType.LIFETIME)) {
-      await this.predictYearly(env, thisYear, userId);
-    }
+    await Promise.allSettled(promises);
 
     const endTime = new Date().getTime();
     console.log(`Finished predict horoscope in ${endTime - startTime}ms`);
@@ -362,39 +361,55 @@ export class PredictHoroscopeJob {
       lunarDay: string;
       lunarLeap: boolean;
     },
-  ) => {
-    return new Promise<void>((resolve, reject) => {
+  ): Promise<HoroscopePrediction | null> => {
+    return new Promise<HoroscopePrediction | null>((resolve, reject) => {
       const child = spawn(
         process.env.PREDICTION_TOOL_PATH || '',
         [JSON.stringify(input)],
         { env, shell: false },
       );
 
-      child.stdout.on('data', async (data: Buffer) => {
-        const stringData = data.toString('utf-8');
+      let outputData = '';
+
+      child.stdout.on('data', (data: Buffer) => {
+        outputData += data.toString('utf-8');
+      });
+
+      child.stderr.on('data', (data) => {
+        console.log(`STDERR: ${data}`);
+      });
+
+      child.on('close', async (code) => {
+        console.log(`Process exited with code ${code}`);
+        if (code !== 0) {
+          reject(new Error(`Binary exited with code ${code}`));
+          return;
+        }
+
         try {
-          const parsedData = JSON.parse(stringData);
+          const parsedData = JSON.parse(outputData);
           if (!parsedData.success) {
             await this.horoscopePredictionLogRepository.save(
               this.horoscopePredictionLogRepository.create({
                 userHoroscopeId: horoscope.id,
                 input: JSON.stringify(input),
-                output: stringData,
+                output: outputData,
                 status: HoroscopePredictionStatus.FAILED,
               }),
             );
-
+            resolve(null);
             return;
           }
         } catch (err) {
-          console.log('Error running horoscope binary', err);
+          console.log('Error parsing horoscope binary output', err);
+          resolve(null);
           return;
         }
 
         const horoscopePredictionData: Record<string, any> = {
           userHoroscope: horoscope,
           type: input.mode,
-          details: stringData,
+          details: outputData,
         };
         if (input.mode === HoroscopePredictionMode.DAILY) {
           const userLocalDateStr = `${userLocalDate.lunarYear}-${userLocalDate.lunarMonth}-${userLocalDate.lunarDay}`;
@@ -407,19 +422,10 @@ export class PredictHoroscopeJob {
         } else if (input.mode === HoroscopePredictionMode.LIFETIME) {
           horoscopePredictionData['year'] = userLocalDate.lunarYear;
         }
-        await this.horoscopePredictionRepository.save(
+        const saved = await this.horoscopePredictionRepository.save(
           this.horoscopePredictionRepository.create(horoscopePredictionData),
         );
-      });
-
-      child.stderr.on('data', (data) => {
-        console.log(`STDERR: ${data}`);
-      });
-
-      child.on('close', (code) => {
-        console.log(`Process exited with code ${code}`);
-        if (code === 0) resolve();
-        else reject(new Error(`Binary exited with code ${code}`));
+        resolve(saved);
       });
 
       child.on('error', (err) => {
