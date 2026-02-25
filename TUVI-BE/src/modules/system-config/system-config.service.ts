@@ -130,6 +130,7 @@ export class SystemConfigService {
       SystemConfigCode.INVESTMENT_TOOL_BY_HOUR_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_DAY_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_YEAR_FILE,
+      SystemConfigCode.INVESTMENT_TOOL_EVENTS_FILE,
       SystemConfigCode.AI_API_KEY,
     ];
     if (investmentConfigCodes.includes(code)) {
@@ -157,6 +158,7 @@ export class SystemConfigService {
       SystemConfigCode.INVESTMENT_TOOL_BY_HOUR_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_DAY_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_YEAR_FILE,
+      SystemConfigCode.INVESTMENT_TOOL_EVENTS_FILE,
       SystemConfigCode.DUMMY_DATA_ENABLED,
     ];
   }
@@ -203,6 +205,11 @@ export class SystemConfigService {
         name: 'File ranging theo năm',
         valueType: 'file',
         description: 'File dùng cho tool đầu tư',
+      },
+      [SystemConfigCode.INVESTMENT_TOOL_EVENTS_FILE]: {
+        name: 'File Events (Dự đoán Thiên Cơ Sách)',
+        valueType: 'file',
+        description: 'File sự kiện dự đoán dùng cho tool đầu tư',
       },
       [SystemConfigCode.DUMMY_DATA_ENABLED]: {
         name: 'Chế độ Dummy Data (Apple Review)',
