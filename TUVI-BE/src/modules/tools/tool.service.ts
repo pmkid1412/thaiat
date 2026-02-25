@@ -37,7 +37,7 @@ export class ToolService {
     private readonly languageRepository: Repository<Language>,
     @InjectRepository(ToolUsage)
     private readonly toolUsageRepository: Repository<ToolUsage>,
-  ) {}
+  ) { }
 
   async investmentAdvice(
     dto: ToolInvestmentAdviceRequestDto,
@@ -134,6 +134,7 @@ export class ToolService {
       SystemConfigCode.INVESTMENT_TOOL_BY_HOUR_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_DAY_FILE,
       SystemConfigCode.INVESTMENT_TOOL_BY_YEAR_FILE,
+      SystemConfigCode.INVESTMENT_TOOL_EVENTS_FILE,
       SystemConfigCode.AI_API_KEY,
     ];
 
