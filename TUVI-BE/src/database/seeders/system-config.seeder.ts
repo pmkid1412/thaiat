@@ -65,6 +65,14 @@ export class SystemConfigSeeder {
         description: 'File dùng cho tool đầu tư',
         isSecure: false,
       },
+      [SystemConfigCode.INVESTMENT_TOOL_EVENTS_FILE]: {
+        code: SystemConfigCode.INVESTMENT_TOOL_EVENTS_FILE,
+        name: 'File Events (Dự đoán Thiên Cơ Sách)',
+        value: 'events_thien_co_sach.csv',
+        valueType: 'file',
+        description: 'File sự kiện dự đoán dùng cho tool đầu tư',
+        isSecure: false,
+      },
     };
 
     for (const code of Object.values(SystemConfigCode)) {
