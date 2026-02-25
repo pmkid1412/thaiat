@@ -232,18 +232,24 @@ Bạn PHẢI trả về DUY NHẤT một JSON block. KHÔNG viết gì ngoài JS
 Phân tích TƯƠNG TÁC giữa các sao, KHÔNG liệt kê nghĩa từng sao riêng lẻ.
 PHẢI đề cập Miếu/Vượng/Hãm khi luận. Lời khuyên cụ thể, hành động được.
 
+## QUY TẮC ĐỊNH DẠNG VĂN BẢN (BẮT BUỘC)
+- CHIA ĐOẠN: Mỗi field phân tích phải chia thành 3-5 đoạn ngắn, mỗi đoạn 2-3 câu, cách nhau bằng \n\n
+- BÔI ĐẬM: Dùng **từ khóa** để bôi đậm các ý quan trọng, lời khuyên, cảnh báo, con số
+  VD: "**Tham Lang Miếu** gặp **Tuần** → giảm tính đào hoa. **Nên kết hôn sau 32 tuổi**."
+- KHÔNG viết wall of text liền mạch
+
 \`\`\`json
 {
-  "tong_quan": "Phân tích tổng quan: Mệnh-Cục sinh/khắc, Âm Dương thuận/nghịch, cách cục chính, điểm nhấn đặc biệt. Viết 3-5 đoạn, mỗi đoạn 100+ từ.",
-  "cung_menh": "Phân tích TƯƠNG TÁC các sao trong cung Mệnh. 150+ từ.",
-  "cung_than_thien_di": "Phân tích cung Thân/Thiên Di. 150+ từ.",
-  "cung_quan_loc": "Phân tích cung Quan Lộc. 150+ từ.",
-  "cung_tai_bach": "Phân tích cung Tài Bạch. 150+ từ.",
-  "cung_phu_the": "Phân tích cung Phu Thê. 150+ từ.",
-  "cung_tu_tuc": "Phân tích cung Tử Tức. 100+ từ.",
-  "cung_khac": "Phân tích ngắn các cung Tật Ách, Điền Trạch, Phúc Đức, Phụ Mẫu, Huynh Đệ, Nô Bộc nếu có điểm đáng chú ý. 200+ từ.",
-  "van_han": "Phân tích Đại Hạn hiện tại + Tiểu Hạn năm ${currentYear} + Tứ Hóa lưu niên + lời khuyên năm. 200+ từ.",
-  "tong_ket": "Đánh giá cốt lõi + 3 điểm yếu cần khắc phục + lời khuyên hành động (Sự nghiệp, Đầu tư, Năm nay). 200+ từ."
+  "tong_quan": "3-5 đoạn, cách nhau \\n\\n. Bôi đậm **từ khóa quan trọng**. 200+ từ.",
+  "cung_menh": "Phân tích TƯƠNG TÁC các sao. 3-4 đoạn, **bôi đậm** điểm nhấn. 150+ từ.",
+  "cung_than_thien_di": "3-4 đoạn, **bôi đậm**. 150+ từ.",
+  "cung_quan_loc": "3-4 đoạn, **bôi đậm**. 150+ từ.",
+  "cung_tai_bach": "3-4 đoạn, **bôi đậm**. 150+ từ.",
+  "cung_phu_the": "3-4 đoạn, **bôi đậm**. 150+ từ.",
+  "cung_tu_tuc": "2-3 đoạn, **bôi đậm**. 100+ từ.",
+  "cung_khac": "Phân tích ngắn các cung Tật Ách, Điền Trạch, Phúc Đức, Phụ Mẫu, Huynh Đệ, Nô Bộc. 3-4 đoạn, **bôi đậm**. 200+ từ.",
+  "van_han": "Phân tích Đại Hạn + Tiểu Hạn + Tứ Hóa lưu niên. 3-4 đoạn, **bôi đậm**. 200+ từ.",
+  "tong_ket": "Đánh giá cốt lõi + 3 điểm yếu + lời khuyên. 3-4 đoạn, **bôi đậm**. 200+ từ."
 }
 \`\`\`
 
@@ -253,6 +259,7 @@ QUAN TRỌNG:
 - Tập trung vào PHÂN TÍCH Ý NGHĨA, không mô tả lại dữ liệu
 - Phân tích TƯƠNG TÁC giữa các sao (VD: "Tham Lang gặp Tuần → giảm tính đào hoa")
 - Lời khuyên cụ thể (VD: "Tránh đầu tư crypto", "Nên kết hôn sau 32 tuổi")
+- BẮT BUỘC chia đoạn và bôi đậm theo quy tắc ở trên
 `;
   }
 
@@ -265,6 +272,7 @@ DỮ LIỆU: ${profile.name} (${profile.gender}), ${profile.canChi}, Mệnh ${ch
 NGÀY: ${cal.lunar.day}/${cal.lunar.month}/${cal.lunar.year} (${cal.dayStem} ${cal.dayBranch})
 
 # YÊU CẦU: Trả về DUY NHẤT một JSON block. KHÔNG thêm bất kỳ text nào trước hoặc sau JSON. KHÔNG giới thiệu. KHÔNG giải thích.
+## QUY TẮC ĐỊNH DẠNG: Chia nội dung advice thành 2-3 đoạn ngắn, cách nhau \n\n. Bôi đậm **từ khóa quan trọng** và **lời khuyên**.
 \`\`\`json
 {
   "daily_advice": {
@@ -274,7 +282,11 @@ NGÀY: ${cal.lunar.day}/${cal.lunar.month}/${cal.lunar.year} (${cal.dayStem} ${c
     "love_bar": "▮▮▮▮▮▯",
     "health_bar": "▮▮▮▯▯▯",
     "daily_quest": "(viết 1-2 câu nhiệm vụ trong ngày)",
-    "advice": { "work": "(2-3 đoạn)", "love": "(2-3 đoạn)", "health": "(1-2 đoạn)" }
+    "advice": {
+      "work": "(2-3 đoạn, cách \\n\\n, **bôi đậm** ý chính)",
+      "love": "(2-3 đoạn, cách \\n\\n, **bôi đậm** ý chính)",
+      "health": "(1-2 đoạn, **bôi đậm** ý chính)"
+    }
   }
 }
 \`\`\`
@@ -293,6 +305,13 @@ THÁNG: ${currentMonth} Âm lịch (${currentYear})
 
 # YÊU CẦU: Trả về DUY NHẤT một JSON block. KHÔNG thêm bất kỳ text nào trước hoặc sau JSON. KHÔNG giới thiệu. KHÔNG giải thích.
 Luận giải ĐẦY ĐỦ cho tháng ${currentMonth} Âm lịch (tối thiểu 200 từ mỗi mục advice).
+
+## QUY TẮC ĐỊNH DẠNG (BẮT BUỘC)
+- CHIA ĐOẠN: Mỗi field advice phải chia thành 3-4 đoạn ngắn, mỗi đoạn 2-3 câu, cách nhau bằng \n\n
+- BÔI ĐẬM: Dùng **từ khóa** để bôi đậm các ý quan trọng, lời khuyên, cảnh báo
+  VD: "Tháng này **tài chính biến động mạnh**, cần **tránh vay nợ** và **hạn chế đầu tư mới**.\n\nTuy nhiên, **cuối tháng** sẽ có cơ hội tốt..."
+- KHÔNG viết wall of text liền mạch. Phải ngắt đoạn.
+
 \`\`\`json
 {
   "monthly_advice": [{
@@ -300,7 +319,11 @@ Luận giải ĐẦY ĐỦ cho tháng ${currentMonth} Âm lịch (tối thiểu 
     "solar_month": ${currentSolarMonth},
     "theme": "(chủ đề tháng)",
     "affirmation": "(câu khẳng định tích cực)",
-    "advice": { "work": "(2-3 đoạn chi tiết)", "love": "(2-3 đoạn chi tiết)", "health": "(1-2 đoạn)" }
+    "advice": {
+      "work": "(3-4 đoạn, cách nhau \\n\\n, **bôi đậm** ý chính. 200+ từ)",
+      "love": "(3-4 đoạn, cách nhau \\n\\n, **bôi đậm** ý chính. 200+ từ)",
+      "health": "(2-3 đoạn, cách nhau \\n\\n, **bôi đậm** ý chính. 100+ từ)"
+    }
   }]
 }
 \`\`\`

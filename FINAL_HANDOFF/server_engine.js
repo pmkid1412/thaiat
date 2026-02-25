@@ -210,7 +210,7 @@ async function run() {
                     <title>Báo Cáo Tử Vi - ${profile.name || ''}</title>
                     <style>
                         body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 16px; font-size: 15px; }
-                        h2 { color: #8B4513; margin-top: 24px; border-left: 4px solid #C0392B; padding-left: 10px; font-size: 17px; }
+                        h2 { color: #8B4513; margin-top: 24px; font-size: 17px; }
                         h3 { color: #C0392B; font-size: 16px; margin-bottom: 4px; }
                         .section { margin-bottom: 16px; }
                         .palace { margin-bottom: 20px; padding: 12px; border-radius: 6px; }
