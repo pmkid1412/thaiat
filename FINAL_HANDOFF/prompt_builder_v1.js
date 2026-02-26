@@ -306,6 +306,11 @@ THÁNG: ${currentMonth} Âm lịch (${currentYear})
 # YÊU CẦU: Trả về DUY NHẤT một JSON block. KHÔNG thêm bất kỳ text nào trước hoặc sau JSON. KHÔNG giới thiệu. KHÔNG giải thích.
 Luận giải ĐẦY ĐỦ cho tháng ${currentMonth} Âm lịch (tối thiểu 200 từ mỗi mục advice).
 
+## ĐỘ DÀI (QUAN TRỌNG NHẤT)
+- Mỗi field work/love: TỐI THIỂU 300 từ (khoảng 15-20 câu). PHẢI viết dài, chi tiết, có ví dụ.
+- Field health: TỐI THIỂU 150 từ (khoảng 8-10 câu).
+- KHÔNG ĐƯỢC viết ngắn. Nếu nội dung dưới 200 từ = THẤT BẠI.
+
 ## QUY TẮC ĐỊNH DẠNG (BẮT BUỘC)
 - CHIA ĐOẠN: Mỗi field advice phải chia thành 3-4 đoạn ngắn, mỗi đoạn 2-3 câu, cách nhau bằng \n\n
 - BÔI ĐẬM: Dùng **từ khóa** để bôi đậm các ý quan trọng, lời khuyên, cảnh báo
