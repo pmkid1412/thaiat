@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsObject,
+  IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
@@ -60,31 +61,31 @@ export class ToolInvestmentAdviceRequestDto {
   @IsNotEmpty({ message: ErrorResponseMessage.FIELD_IS_REQUIRED })
   leverage: boolean;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: 'string',
     format: 'date',
-    description: ' Ngày bắt đầu hành động',
+    description: 'Ngày bắt đầu (optional, default: today)',
   })
+  @IsOptional()
   @IsDateOnly()
-  @IsNotEmpty({ message: ErrorResponseMessage.FIELD_IS_REQUIRED })
-  startDate: string;
+  startDate?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: 'string',
     format: 'date',
-    description: ' Ngày kết thúc hành động',
+    description: 'Ngày kết thúc (optional, default: startDate + 7 days)',
   })
+  @IsOptional()
   @IsDateOnly()
-  @IsNotEmpty({ message: ErrorResponseMessage.FIELD_IS_REQUIRED })
-  endDate: string;
+  endDate?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: InvestmentActionTime,
-    description: 'Gio dự định hành động',
+    description: 'Giờ dự định (optional, default: current time)',
   })
+  @IsOptional()
   @IsEnum(InvestmentActionTime, { message: ErrorResponseMessage.INVALID_VALUE })
-  @IsNotEmpty({ message: ErrorResponseMessage.FIELD_IS_REQUIRED })
-  actionTime: string;
+  actionTime?: string;
 }
 
 export class ToolInvestmentAIAdviceRequestDto {
