@@ -118,7 +118,7 @@ export class ToolService {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(dto),
+      body: JSON.stringify(dto.metaData),
     });
     console.log('response', response);
 
