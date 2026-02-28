@@ -66,6 +66,21 @@ jobs:
             cd /root/app/TUVI-BE
             docker compose -f docker/docker-compose.yml up -d --build app cms
 
+            # Copy prediction tool files into BE container
+            CONTAINER_ID=$(docker ps -q -f name=be-app | head -1)
+            if [ -n "$CONTAINER_ID" ]; then
+              docker cp /root/app/FINAL_HANDOFF/server_engine.js $CONTAINER_ID:/home/tools/bin/server_engine.js
+              docker cp /root/app/FINAL_HANDOFF/prompt_builder_v1.js $CONTAINER_ID:/home/tools/bin/prompt_builder_v1.js
+              echo "✅ Prediction tool files copied"
+            fi
+
+            # Restart nginx to re-resolve Docker DNS (prevents 502)
+            docker restart nginx
+            echo "✅ Nginx restarted"
+
+            # Restart investment microservice
+            pm2 restart investment_tool --silent 2>/dev/null || true
+
             # Wait for startup
             sleep 15
 
