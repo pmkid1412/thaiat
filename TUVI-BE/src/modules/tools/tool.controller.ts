@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -25,7 +26,7 @@ import { LanguageIdRequestDto } from 'src/common/dtos/base-request.dto';
 @ApiBearerAuth()
 @Controller('tools')
 export class ToolController {
-  constructor(private readonly toolService: ToolService) {}
+  constructor(private readonly toolService: ToolService) { }
 
   @UseGuards(UserGuard)
   @Post('investment/advice')
@@ -41,10 +42,10 @@ export class ToolController {
   @Post('investment/ai-advice')
   @ApiBaseResponse({})
   async investmentAIAdvice(
-    @Body() dto: ToolInvestmentAIAdviceRequestDto,
+    @Req() req: any,
     @CurrentUser() currentUser,
   ) {
-    return this.toolService.investmentAIAdvice(dto, currentUser);
+    return this.toolService.investmentAIAdvice(req.body, currentUser);
   }
 
   @UseGuards(InternalSecretGuard)

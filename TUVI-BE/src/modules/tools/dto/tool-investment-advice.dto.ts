@@ -89,9 +89,10 @@ export class ToolInvestmentAdviceRequestDto {
 }
 
 export class ToolInvestmentAIAdviceRequestDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsObject()
-  metaData: any;
+  metaData?: any;
 }
 
 export class ToolInvestmentMetadataDto {

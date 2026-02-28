@@ -90,7 +90,7 @@ export class ToolService {
   }
 
   async investmentAIAdvice(
-    dto: ToolInvestmentAIAdviceRequestDto,
+    body: any,
     currentUser: any,
   ) {
     if (currentUser.type === UserType.FREE) {
@@ -118,7 +118,7 @@ export class ToolService {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(dto.metaData),
+      body: JSON.stringify(body.metaData || body),
     });
     console.log('response', response);
 
