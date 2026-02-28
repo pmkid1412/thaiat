@@ -66,4 +66,10 @@ export class ToolController {
   ) {
     return this.toolService.getInvestmentToolMetadata(code, query);
   }
+  @UseGuards(UserGuard)
+  @Post('investment/reload')
+  @ApiBaseResponse({})
+  async reloadInvestmentData() {
+    return this.toolService.reloadInvestmentData();
+  }
 }

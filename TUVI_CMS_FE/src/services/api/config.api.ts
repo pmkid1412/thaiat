@@ -32,3 +32,8 @@ export const uploadConfigFile = async ({
   });
   return response.data;
 };
+
+export const reloadInvestmentData = async () => {
+  const response = await client.post("/tools/investment/reload");
+  return response.data;
+};

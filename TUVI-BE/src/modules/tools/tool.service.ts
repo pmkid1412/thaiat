@@ -190,4 +190,18 @@ export class ToolService {
     }
     return languageId;
   }
+
+  async reloadInvestmentData() {
+    const endPoint = `${env.TOOLS.INVESTMENT_ADVICE_TOOL_URL}/api/webhook/reload-data`;
+    const response = await fetch(endPoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      throw new InternalServerErrorException('Reload failed');
+    }
+
+    return await response.json();
+  }
 }

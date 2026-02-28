@@ -57,6 +57,19 @@ function RouteComponent() {
     await uploadConfigFile({ code, file });
     queryClient.invalidateQueries({ queryKey: configKeys.all });
     setEditingConfig(null);
+
+    // Auto-reload investment microservice data if uploading investment config
+    if (code.startsWith("INVESTMENT_TOOL_")) {
+      try {
+        const { reloadInvestmentData } = await import("@/services/api/config.api");
+        await reloadInvestmentData();
+        const { toast } = await import("sonner");
+        toast.success("Dữ liệu đầu tư đã được reload tự động");
+      } catch {
+        const { toast } = await import("sonner");
+        toast.warning("Upload thành công, nhưng reload tự động thất bại. Vui lòng restart microservice.");
+      }
+    }
   };
 
   const handleProviderSwitch = async (provider: string) => {
