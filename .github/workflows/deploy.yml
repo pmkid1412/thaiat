@@ -78,23 +78,31 @@ jobs:
             docker restart nginx
             echo "✅ Nginx restarted"
 
-            # Restart investment microservice
-            pm2 restart investment_tool --silent 2>/dev/null || true
-
             # Wait for startup
             sleep 15
 
             # Health check (3 attempts, 10s apart)
+            HEALTHY=false
             for i in 1 2 3; do
               if curl -sf http://localhost:3000/auth/health > /dev/null 2>&1; then
                 echo "✅ Backend healthy (attempt $i)"
-                exit 0
+                HEALTHY=true
+                break
               fi
               echo "⏳ Attempt $i/3..."
               sleep 10
             done
-            echo "❌ Health check failed"
-            exit 1
+
+            if [ "$HEALTHY" = false ]; then
+              echo "❌ Health check failed"
+              exit 1
+            fi
+
+            # Restart investment microservice AFTER BE is healthy
+            # (microservice loads CSV from BE at startup)
+            pm2 restart investment_tool --silent 2>/dev/null || true
+            sleep 3
+            echo "✅ Investment microservice restarted"
 
       - name: Telegram - Success ✅
         if: success()
