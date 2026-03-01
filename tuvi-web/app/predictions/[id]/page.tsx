@@ -6,33 +6,34 @@ import Link from "next/link";
 import { predictionApi } from "@/lib/api";
 import Cookies from "js-cookie";
 
-interface PredictionData {
-    id: number;
-    title: string;
-    description: string;
-    summary: string;
-    languageName: string;
-}
-
+// Matches the flat response from backend findByIdConverted
 interface PredictionDetail {
     id: number;
-    predictionDate: string;
+    title: string | null;
+    domainName: string | null;
+    predictionStatus: string | null;
     startDate: string;
     endDate: string;
+    areas: string[];
     confidenceScore: number;
+    summary: string | null;
+    description: string | null;
+    impactLevel: string | null;
+    isBookmarked: boolean;
     tags: string[];
-    predictionData: PredictionData[];
-    domainData: { id: number; name: string }[];
-    impactLevelData: { id: number; name: string }[];
-    predictionStatusData: { id: number; name: string }[];
-    areas: { areaId: number; name: string }[][];
-    predictionStatusId: number;
-    domainId: number;
-    impactLevelId: number;
+    evidences: {
+        id: number;
+        title: string;
+        source: string;
+        link: string;
+        publishedDate: string;
+        confidenceScore: number;
+        quote: string;
+    }[];
 }
 
-function getStatusInfo(statusData: { name: string }[]) {
-    const name = statusData?.[0]?.name || "Không rõ";
+function getStatusInfo(status: string | null) {
+    const name = status || "Không rõ";
     const colorMap: Record<string, string> = {
         "Đã xảy ra": "bg-green-100 text-green-800 border-green-200",
         "Đang chờ": "bg-amber-100 text-amber-800 border-amber-200",
@@ -47,7 +48,6 @@ export default function PredictionDetailPage() {
     const [prediction, setPrediction] = useState<PredictionDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [bookmarked, setBookmarked] = useState(false);
 
     useEffect(() => {
         const token = Cookies.get("accessToken");
@@ -79,7 +79,7 @@ export default function PredictionDetailPage() {
         if (!prediction) return;
         try {
             await predictionApi.bookmark(prediction.id);
-            setBookmarked(!bookmarked);
+            setPrediction({ ...prediction, isBookmarked: !prediction.isBookmarked });
         } catch {
             // Silently fail
         }
@@ -110,14 +110,7 @@ export default function PredictionDetailPage() {
         );
     }
 
-    const viData = prediction.predictionData?.find(
-        (d) => d.languageName?.toLowerCase() === "tiếng việt"
-    ) || prediction.predictionData?.[0];
-
-    const status = getStatusInfo(prediction.predictionStatusData);
-    const domain = prediction.domainData?.[0]?.name || "";
-    const impact = prediction.impactLevelData?.[0]?.name || "";
-    const allAreas = prediction.areas?.flat()?.map((a) => a.name) || [];
+    const status = getStatusInfo(prediction.predictionStatus);
 
     return (
         <div className="bg-surface-cream min-h-screen">
@@ -132,12 +125,12 @@ export default function PredictionDetailPage() {
                     </Link>
                     <button
                         onClick={handleBookmark}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${bookmarked
-                                ? "bg-gold text-surface-dark"
-                                : "border border-gold/40 text-gold hover:bg-gold/10"
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${prediction.isBookmarked
+                            ? "bg-gold text-surface-dark"
+                            : "border border-gold/40 text-gold hover:bg-gold/10"
                             }`}
                     >
-                        {bookmarked ? "🔖 Đã lưu" : "🔖 Lưu lại"}
+                        {prediction.isBookmarked ? "🔖 Đã lưu" : "🔖 Lưu lại"}
                     </button>
                 </div>
             </section>
@@ -152,14 +145,14 @@ export default function PredictionDetailPage() {
                     <span className={`text-xs px-3 py-1 rounded-full font-medium border ${status.className}`}>
                         {status.name}
                     </span>
-                    {domain && (
+                    {prediction.domainName && (
                         <span className="text-xs px-3 py-1 bg-surface-light rounded-full text-text-muted">
-                            {domain}
+                            {prediction.domainName}
                         </span>
                     )}
-                    {impact && (
+                    {prediction.impactLevel && (
                         <span className="text-xs px-3 py-1 bg-primary/10 rounded-full text-primary">
-                            Mức ảnh hưởng: {impact}
+                            Mức ảnh hưởng: {prediction.impactLevel}
                         </span>
                     )}
                 </div>
@@ -178,28 +171,66 @@ export default function PredictionDetailPage() {
                         📅 {new Date(prediction.startDate).toLocaleDateString("vi-VN")} →{" "}
                         {new Date(prediction.endDate).toLocaleDateString("vi-VN")}
                     </span>
-                    {allAreas.length > 0 && (
-                        <span>📍 {allAreas.join(", ")}</span>
+                    {prediction.areas?.length > 0 && (
+                        <span>📍 {prediction.areas.join(", ")}</span>
                     )}
                 </div>
 
                 {/* Title */}
                 <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary mb-6 leading-tight">
-                    {viData?.title}
+                    {prediction.title}
                 </h1>
 
                 {/* Summary */}
-                {viData?.summary && (
+                {prediction.summary && (
                     <div className="bg-gold/5 border-l-4 border-gold p-4 rounded-r-lg mb-8">
-                        <p className="text-text-primary leading-relaxed italic">{viData.summary}</p>
+                        <p className="text-text-primary leading-relaxed italic">{prediction.summary}</p>
                     </div>
                 )}
 
                 {/* Description / Content */}
                 <div
                     className="prose prose-lg max-w-none text-text-primary leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: viData?.description || "" }}
+                    dangerouslySetInnerHTML={{ __html: prediction.description || "" }}
                 />
+
+                {/* Evidences */}
+                {prediction.evidences && prediction.evidences.length > 0 && (
+                    <div className="mt-8 pt-6 border-t border-surface-light">
+                        <h3 className="text-sm font-heading font-semibold text-text-muted mb-3">
+                            Bằng chứng
+                        </h3>
+                        <div className="space-y-3">
+                            {prediction.evidences.map((ev) => (
+                                <div key={ev.id} className="p-4 bg-white rounded-xl border border-surface-light">
+                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                        <p className="font-medium text-text-primary text-sm">{ev.title}</p>
+                                        {ev.confidenceScore > 0 && (
+                                            <span className="text-xs text-primary font-bold whitespace-nowrap">
+                                                {ev.confidenceScore}%
+                                            </span>
+                                        )}
+                                    </div>
+                                    {ev.quote && (
+                                        <p className="text-sm text-text-muted italic mb-2">&ldquo;{ev.quote}&rdquo;</p>
+                                    )}
+                                    <div className="flex items-center gap-3 text-xs text-text-muted">
+                                        {ev.source && <span>📰 {ev.source}</span>}
+                                        {ev.publishedDate && (
+                                            <span>📅 {new Date(ev.publishedDate).toLocaleDateString("vi-VN")}</span>
+                                        )}
+                                        {ev.link && (
+                                            <a href={ev.link} target="_blank" rel="noopener noreferrer"
+                                                className="text-primary hover:underline">
+                                                🔗 Xem nguồn
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Tags */}
                 {prediction.tags && prediction.tags.length > 0 && (
