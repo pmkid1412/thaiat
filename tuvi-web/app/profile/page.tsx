@@ -200,7 +200,7 @@ export default function ProfilePage() {
         );
     }
 
-    const isPro = user?.userType === "PRO";
+    const isPro = user?.userType?.toLowerCase() === "pro";
 
     return (
         <div className="bg-surface-cream min-h-screen">
