@@ -6,23 +6,23 @@ import Link from "next/link";
 import Cookies from "js-cookie";
 import { predictionApi } from "@/lib/api";
 
-interface Prediction {
+interface Bookmark {
     id: number;
     title?: string;
+    summary?: string;
     description?: string;
-    status?: string;
+    domainName?: string;
+    predictionStatus?: string;
     confidenceScore?: number;
-    predictionData?: {
-        title?: string;
-        description?: string;
-        summary?: string;
-    }[];
-    createdAt?: string;
+    predictionDate?: string;
+    startDate?: string;
+    endDate?: string;
+    areas?: string[];
 }
 
 export default function BookmarksPage() {
     const router = useRouter();
-    const [predictions, setPredictions] = useState<Prediction[]>([]);
+    const [predictions, setPredictions] = useState<Bookmark[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
@@ -37,9 +37,12 @@ export default function BookmarksPage() {
         const fetchBookmarks = async () => {
             try {
                 const res = await predictionApi.getBookmarks({ page, pageSize: 12 });
-                const data = res.data?.data || res.data;
-                setPredictions(data.items || data || []);
-                setTotal(data.total || 0);
+                const responseData = res.data?.data || res.data;
+                // API returns { data: [...], total, page, pageSize, totalPages }
+                const items = Array.isArray(responseData) ? responseData : (responseData?.data || responseData?.items || []);
+                const totalCount = Array.isArray(responseData) ? responseData.length : (responseData?.total || 0);
+                setPredictions(items);
+                setTotal(totalCount);
             } catch {
                 setPredictions([]);
             } finally {
@@ -49,22 +52,6 @@ export default function BookmarksPage() {
 
         fetchBookmarks();
     }, [page, router]);
-
-    const getTitle = (p: Prediction) => {
-        if (p.predictionData?.length)
-            return p.predictionData[0].title || p.title || "Dự đoán";
-        return p.title || "Dự đoán";
-    };
-
-    const getDescription = (p: Prediction) => {
-        if (p.predictionData?.length)
-            return (
-                p.predictionData[0].summary ||
-                p.predictionData[0].description ||
-                p.description
-            );
-        return p.description;
-    };
 
     return (
         <>
@@ -113,25 +100,20 @@ export default function BookmarksPage() {
                                         className="bg-white rounded-2xl border border-surface-light p-6 hover:shadow-lg hover:-translate-y-1 transition-all group"
                                     >
                                         <div className="flex items-start justify-between mb-3">
-                                            <span
-                                                className={`px-2 py-0.5 text-xs rounded-full font-medium ${p.status === "verified"
-                                                    ? "bg-green-100 text-green-700"
-                                                    : p.status === "pending"
-                                                        ? "bg-yellow-100 text-yellow-700"
-                                                        : "bg-blue-100 text-blue-700"
-                                                    }`}
-                                            >
-                                                {p.status || "active"}
-                                            </span>
-                                            <span className="text-gold text-lg">🔖</span>
+                                            {p.domainName && (
+                                                <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-blue-100 text-blue-700">
+                                                    {p.domainName}
+                                                </span>
+                                            )}
+                                            <span className="text-gold text-lg ml-auto">🔖</span>
                                         </div>
                                         <h3 className="font-heading font-bold text-text-primary group-hover:text-primary transition-colors line-clamp-2 mb-2">
-                                            {getTitle(p)}
+                                            {p.title || "Dự đoán"}
                                         </h3>
                                         <p className="text-sm text-text-muted line-clamp-3">
-                                            {getDescription(p)}
+                                            {p.summary || p.description}
                                         </p>
-                                        {p.confidenceScore && (
+                                        {p.confidenceScore != null && (
                                             <div className="mt-4 flex items-center gap-2">
                                                 <div className="flex-1 h-1.5 bg-surface-light rounded-full overflow-hidden">
                                                     <div
@@ -143,6 +125,11 @@ export default function BookmarksPage() {
                                                     {p.confidenceScore}%
                                                 </span>
                                             </div>
+                                        )}
+                                        {p.predictionDate && (
+                                            <p className="text-xs text-text-muted mt-2">
+                                                {new Date(p.predictionDate).toLocaleDateString("vi-VN")}
+                                            </p>
                                         )}
                                     </Link>
                                 ))}

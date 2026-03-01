@@ -11,14 +11,8 @@ interface UserProfile {
     name: string;
     email: string;
     avatar: string | null;
-    dateOfBirth: string | null;
-    timeOfBirth: string | null;
-    timezone: string | null;
-    placeOfBirth: string | null;
     userType: string;
-    phoneNumber: string;
     proPlanType: string | null;
-    proPlanStartDate: string | null;
     proPlanEndDate: string | null;
 }
 
@@ -33,13 +27,7 @@ interface HoroscopeInfo {
     gender: string;
 }
 
-interface HoroscopeForm {
-    name: string;
-    solarDateOfBirth: string;
-    timeOfBirth: string;
-    timezone: string;
-    gender: string;
-}
+type CalendarType = "solar" | "lunar";
 
 interface PasswordForm {
     currentPassword: string;
@@ -76,6 +64,33 @@ const TIMEZONE_OPTIONS = [
     { value: "12", label: "UTC+12" },
 ];
 
+/** Convert "yyyy-mm-dd" or "yyyy/mm/dd" to "dd/mm/yyyy" for display */
+function toDisplayDate(isoDate: string | null | undefined): string {
+    if (!isoDate) return "—";
+    // Handle ISO format: "1990-05-15" or "1990-05-15T00:00:00.000Z"
+    const match = isoDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (match) {
+        const [, y, m, d] = match;
+        return `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
+    }
+    return isoDate;
+}
+
+/** Convert "dd/mm/yyyy" input to "yyyy-mm-dd" for API */
+function toApiDate(displayDate: string): string {
+    const match = displayDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (match) {
+        const [, d, m, y] = match;
+        return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+    }
+    return displayDate;
+}
+
+/** Validate dd/mm/yyyy format */
+function isValidDate(str: string): boolean {
+    return /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str);
+}
+
 export default function ProfilePage() {
     const router = useRouter();
     const [user, setUser] = useState<UserProfile | null>(null);
@@ -84,9 +99,13 @@ export default function ProfilePage() {
 
     // Horoscope form
     const [showHoroscopeForm, setShowHoroscopeForm] = useState(false);
-    const [horoscopeForm, setHoroscopeForm] = useState<HoroscopeForm>({
-        name: "", solarDateOfBirth: "", timeOfBirth: "", timezone: "7", gender: "MALE",
-    });
+    const [calendarType, setCalendarType] = useState<CalendarType>("solar");
+    const [formName, setFormName] = useState("");
+    const [formDateOfBirth, setFormDateOfBirth] = useState(""); // dd/mm/yyyy
+    const [formIsLeapMonth, setFormIsLeapMonth] = useState(false);
+    const [formTimeOfBirth, setFormTimeOfBirth] = useState("");
+    const [formTimezone, setFormTimezone] = useState("7");
+    const [formGender, setFormGender] = useState("male");
     const [horoscopeSubmitting, setHoroscopeSubmitting] = useState(false);
     const [horoscopeMsg, setHoroscopeMsg] = useState("");
 
@@ -118,13 +137,20 @@ export default function ProfilePage() {
                     const h = horoRes.value.data?.data || horoRes.value.data;
                     if (h?.id) {
                         setHoroscope(h);
-                        setHoroscopeForm({
-                            name: h.name || "",
-                            solarDateOfBirth: h.solarDateOfBirth || "",
-                            timeOfBirth: h.timeOfBirth || "",
-                            timezone: h.timezone || "7",
-                            gender: h.gender || "MALE",
-                        });
+                        // Populate form from existing data
+                        setFormName(h.name || "");
+                        setFormGender(h.gender || "male");
+                        setFormTimezone(h.timezone || "7");
+                        setFormTimeOfBirth(h.timeOfBirth || "");
+                        // Determine calendar type and date
+                        if (h.solarDateOfBirth) {
+                            setCalendarType("solar");
+                            setFormDateOfBirth(toDisplayDate(h.solarDateOfBirth));
+                        } else if (h.lunarDateOfBirth) {
+                            setCalendarType("lunar");
+                            setFormDateOfBirth(toDisplayDate(h.lunarDateOfBirth));
+                            setFormIsLeapMonth(h.isLunarLeapMonth || false);
+                        }
                     }
                 }
             } catch {
@@ -144,19 +170,56 @@ export default function ProfilePage() {
 
     const handleHoroscopeSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!isValidDate(formDateOfBirth)) {
+            setHoroscopeMsg("❌ Vui lòng nhập ngày sinh đúng định dạng dd/mm/yyyy");
+            return;
+        }
         setHoroscopeSubmitting(true);
         setHoroscopeMsg("");
+
+        const apiDate = toApiDate(formDateOfBirth);
+        const payload: Record<string, unknown> = {
+            name: formName,
+            timeOfBirth: formTimeOfBirth,
+            timezone: formTimezone,
+            gender: formGender,
+        };
+
+        if (calendarType === "solar") {
+            payload.solarDateOfBirth = apiDate;
+        } else {
+            payload.lunarDateOfBirth = apiDate;
+            payload.isLunarLeapMonth = formIsLeapMonth;
+        }
+
         try {
             if (horoscope) {
-                await horoscopeApi.update(horoscopeForm);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await horoscopeApi.update(payload as any);
             } else {
-                await horoscopeApi.create(horoscopeForm);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await horoscopeApi.create(payload as any);
             }
             setHoroscopeMsg("✅ Đã lưu thông tin tử vi!");
             // Refresh horoscope data
             const res = await horoscopeApi.get();
             const h = res.data?.data || res.data;
-            if (h?.id) setHoroscope(h);
+            if (h?.id) {
+                setHoroscope(h);
+                // Re-sync form
+                setFormName(h.name || "");
+                setFormGender(h.gender || "male");
+                setFormTimezone(h.timezone || "7");
+                setFormTimeOfBirth(h.timeOfBirth || "");
+                if (h.solarDateOfBirth) {
+                    setCalendarType("solar");
+                    setFormDateOfBirth(toDisplayDate(h.solarDateOfBirth));
+                } else if (h.lunarDateOfBirth) {
+                    setCalendarType("lunar");
+                    setFormDateOfBirth(toDisplayDate(h.lunarDateOfBirth));
+                    setFormIsLeapMonth(h.isLunarLeapMonth || false);
+                }
+            }
             setShowHoroscopeForm(false);
         } catch {
             setHoroscopeMsg("❌ Lỗi khi lưu. Vui lòng thử lại.");
@@ -201,6 +264,24 @@ export default function ProfilePage() {
     }
 
     const isPro = user?.userType?.toLowerCase() === "pro";
+
+    // Display helpers for horoscope info
+    const displayGender = (g: string | undefined) => {
+        if (!g) return "—";
+        return g.toLowerCase() === "male" ? "Nam" : "Nữ";
+    };
+
+    const displayDate = () => {
+        if (horoscope?.solarDateOfBirth) return toDisplayDate(horoscope.solarDateOfBirth);
+        if (horoscope?.lunarDateOfBirth) return toDisplayDate(horoscope.lunarDateOfBirth);
+        return "—";
+    };
+
+    const dateLabel = () => {
+        if (horoscope?.solarDateOfBirth) return "Ngày sinh (DL)";
+        if (horoscope?.lunarDateOfBirth) return `Ngày sinh (ÂL)${horoscope.isLunarLeapMonth ? " - nhuận" : ""}`;
+        return "Ngày sinh";
+    };
 
     return (
         <div className="bg-surface-cream min-h-screen">
@@ -258,12 +339,8 @@ export default function ProfilePage() {
                                     <span className="text-text-primary font-medium">{horoscope.name}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-text-muted">Ngày sinh (DL)</span>
-                                    <span className="text-text-primary font-medium">
-                                        {horoscope.solarDateOfBirth
-                                            ? new Date(horoscope.solarDateOfBirth).toLocaleDateString("vi-VN")
-                                            : "—"}
-                                    </span>
+                                    <span className="text-text-muted">{dateLabel()}</span>
+                                    <span className="text-text-primary font-medium">{displayDate()}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-text-muted">Giờ sinh</span>
@@ -271,9 +348,7 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-text-muted">Giới tính</span>
-                                    <span className="text-text-primary font-medium">
-                                        {horoscope.gender === "MALE" ? "Nam" : "Nữ"}
-                                    </span>
+                                    <span className="text-text-primary font-medium">{displayGender(horoscope.gender)}</span>
                                 </div>
                             </div>
                         ) : !horoscope && !showHoroscopeForm ? (
@@ -297,37 +372,92 @@ export default function ProfilePage() {
                                     <input
                                         type="text"
                                         required
-                                        value={horoscopeForm.name}
-                                        onChange={(e) => setHoroscopeForm({ ...horoscopeForm, name: e.target.value })}
+                                        value={formName}
+                                        onChange={(e) => setFormName(e.target.value)}
                                         className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream"
                                         placeholder="Nguyễn Văn A"
                                     />
                                 </div>
+
+                                {/* Calendar type toggle */}
                                 <div>
-                                    <label className="block text-xs text-text-muted mb-1">Ngày sinh (dương lịch)</label>
+                                    <label className="block text-xs text-text-muted mb-1">Loại lịch</label>
+                                    <div className="flex gap-1 bg-surface-cream rounded-lg p-0.5 border border-surface-light">
+                                        <button
+                                            type="button"
+                                            onClick={() => setCalendarType("solar")}
+                                            className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${calendarType === "solar"
+                                                ? "bg-primary text-text-light shadow-sm"
+                                                : "text-text-muted hover:text-text-primary"
+                                                }`}
+                                        >
+                                            ☀️ Dương lịch
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setCalendarType("lunar")}
+                                            className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${calendarType === "lunar"
+                                                ? "bg-primary text-text-light shadow-sm"
+                                                : "text-text-muted hover:text-text-primary"
+                                                }`}
+                                        >
+                                            🌙 Âm lịch
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Date input dd/mm/yyyy */}
+                                <div>
+                                    <label className="block text-xs text-text-muted mb-1">
+                                        Ngày sinh ({calendarType === "solar" ? "dương lịch" : "âm lịch"}) — dd/mm/yyyy
+                                    </label>
                                     <input
-                                        type="date"
+                                        type="text"
                                         required
-                                        value={horoscopeForm.solarDateOfBirth}
-                                        onChange={(e) => setHoroscopeForm({ ...horoscopeForm, solarDateOfBirth: e.target.value })}
+                                        value={formDateOfBirth}
+                                        onChange={(e) => {
+                                            // Auto-add slashes
+                                            let val = e.target.value.replace(/[^\d/]/g, "");
+                                            if (val.length === 2 && formDateOfBirth.length === 1) val += "/";
+                                            if (val.length === 5 && formDateOfBirth.length === 4) val += "/";
+                                            if (val.length <= 10) setFormDateOfBirth(val);
+                                        }}
                                         className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream"
+                                        placeholder="15/05/1990"
+                                        maxLength={10}
                                     />
                                 </div>
+
+                                {/* Leap month checkbox (lunar only) */}
+                                {calendarType === "lunar" && (
+                                    <div>
+                                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={formIsLeapMonth}
+                                                onChange={(e) => setFormIsLeapMonth(e.target.checked)}
+                                                className="accent-primary"
+                                            />
+                                            Tháng nhuận
+                                        </label>
+                                    </div>
+                                )}
+
                                 <div>
                                     <label className="block text-xs text-text-muted mb-1">Giờ sinh</label>
                                     <input
                                         type="time"
                                         required
-                                        value={horoscopeForm.timeOfBirth}
-                                        onChange={(e) => setHoroscopeForm({ ...horoscopeForm, timeOfBirth: e.target.value })}
+                                        value={formTimeOfBirth}
+                                        onChange={(e) => setFormTimeOfBirth(e.target.value)}
                                         className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-xs text-text-muted mb-1">Múi giờ</label>
                                     <select
-                                        value={horoscopeForm.timezone}
-                                        onChange={(e) => setHoroscopeForm({ ...horoscopeForm, timezone: e.target.value })}
+                                        value={formTimezone}
+                                        onChange={(e) => setFormTimezone(e.target.value)}
                                         className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream"
                                     >
                                         {TIMEZONE_OPTIONS.map((tz) => (
@@ -342,9 +472,9 @@ export default function ProfilePage() {
                                             <input
                                                 type="radio"
                                                 name="gender"
-                                                value="MALE"
-                                                checked={horoscopeForm.gender === "MALE"}
-                                                onChange={(e) => setHoroscopeForm({ ...horoscopeForm, gender: e.target.value })}
+                                                value="male"
+                                                checked={formGender === "male"}
+                                                onChange={(e) => setFormGender(e.target.value)}
                                                 className="accent-primary"
                                             />
                                             Nam
@@ -353,9 +483,9 @@ export default function ProfilePage() {
                                             <input
                                                 type="radio"
                                                 name="gender"
-                                                value="FEMALE"
-                                                checked={horoscopeForm.gender === "FEMALE"}
-                                                onChange={(e) => setHoroscopeForm({ ...horoscopeForm, gender: e.target.value })}
+                                                value="female"
+                                                checked={formGender === "female"}
+                                                onChange={(e) => setFormGender(e.target.value)}
                                                 className="accent-primary"
                                             />
                                             Nữ
