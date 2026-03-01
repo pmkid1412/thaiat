@@ -28,7 +28,7 @@ export default async function HomePage() {
   return (
     <div>
       {/* ═══ Hero Section (dark bg) ═══ */}
-      <section className="bg-surface-dark ink-divider relative overflow-hidden">
+      <section className="bg-surface-dark relative overflow-hidden">
         {/* Background image */}
         <img
           src="/assets/images/hero-banner.png"
