@@ -408,8 +408,8 @@ export default function PredictionDetailPage() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {relatedPredictions.map((rp) => (
-                                <Link key={rp.id} href={`/predictions/${rp.id}`}>
-                                    <div className="bg-white rounded-xl p-4 border border-surface-light hover:border-gold/30 hover:shadow-md transition-all group">
+                                <Link key={rp.id} href={`/predictions/${rp.id}`} className="block h-full">
+                                    <div className="bg-white rounded-xl p-4 border border-surface-light hover:border-gold/30 hover:shadow-md transition-all group h-full flex flex-col">
                                         <div className="flex items-center gap-2 mb-2">
                                             <span className="text-xs font-bold text-primary">
                                                 📊 {rp.confidenceScore}%
@@ -420,7 +420,7 @@ export default function PredictionDetailPage() {
                                                 </span>
                                             )}
                                         </div>
-                                        <h4 className="font-heading font-semibold text-text-primary text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                                        <h4 className="font-heading font-semibold text-text-primary text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors flex-1">
                                             {rp.title}
                                         </h4>
                                         {rp.areas && rp.areas.length > 0 && (
