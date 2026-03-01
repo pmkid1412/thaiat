@@ -400,6 +400,26 @@ export default function PredictionDetailPage() {
                     </div>
                 )}
 
+                {/* Disclaimer Notice */}
+                <div className="mt-8 p-5 bg-[#FFF8F0] border border-[#D4A574] rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-base">⚠</span>
+                        <span className="font-heading font-bold text-[#8B4513] text-sm">Lưu ý</span>
+                    </div>
+                    <p className="text-sm text-[#5C3A1E] leading-relaxed">
+                        Nội dung là sự kết hợp giữa dữ liệu vĩ mô và tính toán chu kỳ thời vận, không nên dùng làm cơ sở duy nhất cho các quyết định quan trọng. Xem chi tiết{" "}
+                        <a
+                            href="https://thaiatkimhoa.vn/tuyen-bo-mien-tru-trach-nhiem-disclaimer/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#8B4513] font-semibold underline hover:text-[#5C3A1E] transition-colors"
+                        >
+                            Miễn trừ trách nhiệm
+                        </a>
+                        .
+                    </p>
+                </div>
+
                 {/* Related Predictions */}
                 {!isFreeLocked && relatedPredictions.length > 0 && (
                     <div className="mt-10 pt-8 border-t border-surface-light">

@@ -58,6 +58,33 @@ export function Footer() {
                                     Website chính
                                 </Link>
                             </li>
+                            <li>
+                                <Link
+                                    href="https://thaiatkimhoa.vn/tuyen-bo-mien-tru-trach-nhiem-disclaimer/"
+                                    target="_blank"
+                                    className="hover:text-gold transition-colors"
+                                >
+                                    Miễn trừ trách nhiệm
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="https://thaiatkimhoa.vn/dieu-khoan-su-dung/"
+                                    target="_blank"
+                                    className="hover:text-gold transition-colors"
+                                >
+                                    Điều khoản sử dụng
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="https://thaiatkimhoa.vn/chinh-sach-bao-mat/"
+                                    target="_blank"
+                                    className="hover:text-gold transition-colors"
+                                >
+                                    Chính sách bảo mật
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -74,7 +101,8 @@ export function Footer() {
                 </div>
 
                 <div className="border-t border-white/10 mt-8 pt-6 text-center text-sm text-text-muted">
-                    © {new Date().getFullYear()} Thái Ất Kim Hoa. All rights reserved.
+                    <p>© {new Date().getFullYear()} Thái Ất Kim Hoa. All rights reserved.</p>
+                    <p className="mt-1">Thông tin trên trang web mang tính tham khảo.</p>
                 </div>
             </div>
         </footer>
