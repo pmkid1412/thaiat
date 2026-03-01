@@ -63,6 +63,7 @@ services:
       - app
       - phpmyadmin
       - cms
+      - web
     networks:
       - appnet
 
@@ -123,6 +124,17 @@ services:
       dockerfile: docker/Dockerfile
     container_name: cms-app
     restart: unless-stopped
+    networks:
+      - appnet
+
+  web:
+    build:
+      context: ../../tuvi-web
+      dockerfile: Dockerfile
+    container_name: web-app
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.thaiatkimhoa.vn
     networks:
       - appnet
 
