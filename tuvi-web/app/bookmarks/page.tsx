@@ -36,7 +36,7 @@ export default function BookmarksPage() {
 
         const fetchBookmarks = async () => {
             try {
-                const res = await predictionApi.getBookmarks({ page, limit: 12 });
+                const res = await predictionApi.getBookmarks({ page, pageSize: 12 });
                 const data = res.data?.data || res.data;
                 setPredictions(data.items || data || []);
                 setTotal(data.total || 0);
@@ -115,10 +115,10 @@ export default function BookmarksPage() {
                                         <div className="flex items-start justify-between mb-3">
                                             <span
                                                 className={`px-2 py-0.5 text-xs rounded-full font-medium ${p.status === "verified"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : p.status === "pending"
-                                                            ? "bg-yellow-100 text-yellow-700"
-                                                            : "bg-blue-100 text-blue-700"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : p.status === "pending"
+                                                        ? "bg-yellow-100 text-yellow-700"
+                                                        : "bg-blue-100 text-blue-700"
                                                     }`}
                                             >
                                                 {p.status || "active"}
@@ -159,8 +159,8 @@ export default function BookmarksPage() {
                                             key={p}
                                             onClick={() => setPage(p)}
                                             className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${page === p
-                                                    ? "bg-primary text-text-light"
-                                                    : "bg-white border border-surface-light text-text-muted hover:border-primary hover:text-primary"
+                                                ? "bg-primary text-text-light"
+                                                : "bg-white border border-surface-light text-text-muted hover:border-primary hover:text-primary"
                                                 }`}
                                         >
                                             {p}

@@ -26,7 +26,7 @@ async function getPredictions(
     try {
         const params = new URLSearchParams({
             page: String(page),
-            limit: "12",
+            pageSize: "12",
         });
         if (search) params.set("search", search);
 
@@ -34,16 +34,16 @@ async function getPredictions(
             `${process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn"}/predictions?${params}`,
             { next: { revalidate: 60 } }
         );
-        if (!res.ok) return { data: [], total: 0, page: 1, limit: 12 };
+        if (!res.ok) return { data: [], total: 0, page: 1, pageSize: 12 };
         const json = await res.json();
         return {
-            data: json?.data?.data || [],
+            data: json?.data?.data || json?.data || [],
             total: json?.data?.total || 0,
             page: json?.data?.page || 1,
-            limit: json?.data?.limit || 12,
+            pageSize: json?.data?.pageSize || json?.data?.limit || 12,
         };
     } catch {
-        return { data: [], total: 0, page: 1, limit: 12 };
+        return { data: [], total: 0, page: 1, pageSize: 12 };
     }
 }
 
@@ -55,12 +55,8 @@ export default async function PredictionsPage({
     const params = await searchParams;
     const currentPage = parseInt(params.page || "1", 10);
     const search = params.search || "";
-    const {
-        data: predictions,
-        total,
-        limit,
-    } = await getPredictions(currentPage, search);
-    const totalPages = Math.ceil(total / limit) || 1;
+    const { data: predictions, total, pageSize } = await getPredictions(currentPage, search);
+    const totalPages = Math.ceil(total / pageSize) || 1;
 
     return (
         <div className="bg-surface-cream min-h-screen">

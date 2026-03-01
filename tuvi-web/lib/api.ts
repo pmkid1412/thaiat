@@ -60,11 +60,11 @@ export const authApi = {
 export const predictionApi = {
     list: (params?: {
         page?: number;
-        limit?: number;
+        pageSize?: number;
         languageId?: number;
         search?: string;
         predictionType?: number;
-        domain?: string;
+        domains?: string;
         status?: string;
     }) => api.get("/predictions", { params }),
 
@@ -73,7 +73,7 @@ export const predictionApi = {
 
     bookmark: (id: number) => api.post(`/predictions/${id}/bookmark`),
 
-    getBookmarks: (params?: { page?: number; limit?: number }) =>
+    getBookmarks: (params?: { page?: number; pageSize?: number }) =>
         api.get("/predictions/bookmarks", { params }),
 };
 
