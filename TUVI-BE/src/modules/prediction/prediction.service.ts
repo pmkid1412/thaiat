@@ -598,6 +598,7 @@ export class PredictionService {
       'evidences.publishedDate',
       'evidences.confidenceScore',
       'evidences.quote',
+      'prediction.type',
     ];
     qb.select(selections);
     qb.where('prediction.deletedAt IS NULL');

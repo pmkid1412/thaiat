@@ -127,13 +127,14 @@ export default function PredictionDetailPage() {
 
                 // Get user profile to check Pro status
                 try {
-                    const profileRes = await api.get("/auth/profile");
+                    const profileRes = await api.get("/users/me");
                     const user = profileRes.data?.data || profileRes.data;
-                    setUserType(user?.userType || user?.type || "");
+                    const uType = (user?.userType || user?.type || "").toString();
+                    setUserType(uType);
 
                     // Check Pro gate: if prediction is Pro and user is not Pro
                     const isPro = pred?.type?.toLowerCase() === "pro";
-                    const isUserPro = (user?.userType || user?.type || "").toLowerCase() === "pro";
+                    const isUserPro = uType.toLowerCase() === "pro";
                     if (isPro && !isUserPro) {
                         setShowProGate(true);
                     }
