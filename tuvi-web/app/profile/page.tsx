@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { userApi, horoscopeApi } from "@/lib/api";
+import api from "@/lib/api";
 
 interface UserProfile {
     id: number;
@@ -96,6 +97,7 @@ export default function ProfilePage() {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [horoscope, setHoroscope] = useState<HoroscopeInfo | null>(null);
     const [loading, setLoading] = useState(true);
+    const [zaloNumber, setZaloNumber] = useState("");
 
     // Horoscope form
     const [showHoroscopeForm, setShowHoroscopeForm] = useState(false);
@@ -158,6 +160,16 @@ export default function ProfilePage() {
             } finally {
                 setLoading(false);
             }
+
+            // Fetch Zalo number
+            try {
+                const configRes = await api.get("/configs");
+                const configs = configRes.data?.data || configRes.data;
+                if (Array.isArray(configs)) {
+                    const zaloConfig = configs.find((c: any) => c.key === "ZALO_NUMBER");
+                    if (zaloConfig?.value) setZaloNumber(zaloConfig.value);
+                }
+            } catch { /* ignore */ }
         };
         fetchData();
     }, [router]);
@@ -312,6 +324,16 @@ export default function ProfilePage() {
                             <p className="text-text-light/40 text-xs mt-1">
                                 Hết hạn: {new Date(user.proPlanEndDate).toLocaleDateString("vi-VN")}
                             </p>
+                        )}
+                        {!isPro && zaloNumber && (
+                            <a
+                                href={`https://zalo.me/${zaloNumber}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 mt-3 px-5 py-2 bg-gradient-to-r from-gold to-primary text-white text-sm font-heading font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-md"
+                            >
+                                ⭐ Nâng cấp Pro
+                            </a>
                         )}
                     </div>
                 </div>
@@ -517,9 +539,16 @@ export default function ProfilePage() {
                             <p className="text-sm text-text-muted mb-3">
                                 Mở khóa tử vi tháng, tử vi năm, bộ lọc nâng cao và tính năng bookmark.
                             </p>
-                            <p className="text-xs text-text-muted">
-                                Nâng cấp Pro qua mobile app để sử dụng trên cả web và app.
-                            </p>
+                            {zaloNumber && (
+                                <a
+                                    href={`https://zalo.me/${zaloNumber}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white text-sm font-heading font-semibold rounded-lg hover:bg-blue-600 transition-colors"
+                                >
+                                    💬 Liên hệ qua Zalo
+                                </a>
+                            )}
                         </div>
                     )}
 

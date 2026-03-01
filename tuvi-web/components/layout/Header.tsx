@@ -3,14 +3,42 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
+import api from "@/lib/api";
 
 export function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userType, setUserType] = useState("");
+    const [zaloNumber, setZaloNumber] = useState("");
 
     useEffect(() => {
-        setIsLoggedIn(!!Cookies.get("accessToken"));
+        const token = Cookies.get("accessToken");
+        setIsLoggedIn(!!token);
+
+        if (token) {
+            // Fetch user type
+            api.get("/users/me")
+                .then((res) => {
+                    const user = res.data?.data || res.data;
+                    setUserType((user?.userType || "").toString());
+                })
+                .catch(() => { });
+
+            // Fetch Zalo number
+            api.get("/configs")
+                .then((res) => {
+                    const configs = res.data?.data || res.data;
+                    if (Array.isArray(configs)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const zaloConfig = configs.find((c: any) => c.key === "ZALO_NUMBER");
+                        if (zaloConfig?.value) setZaloNumber(zaloConfig.value);
+                    }
+                })
+                .catch(() => { });
+        }
     }, []);
+
+    const isFree = isLoggedIn && userType.toLowerCase() !== "pro";
 
     return (
         <header className="bg-surface-dark sticky top-0 z-50 border-b border-white/10">
@@ -58,12 +86,24 @@ export function Header() {
                 {/* Auth Buttons */}
                 <div className="hidden md:flex items-center gap-3">
                     {isLoggedIn ? (
-                        <Link
-                            href="/profile"
-                            className="px-5 py-2 text-gold border border-gold/40 rounded-lg hover:bg-gold/10 transition-colors font-medium text-sm"
-                        >
-                            👤 Tài khoản
-                        </Link>
+                        <>
+                            {isFree && zaloNumber && (
+                                <a
+                                    href={`https://zalo.me/${zaloNumber}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2 bg-gradient-to-r from-gold to-primary text-white rounded-lg text-sm font-heading font-semibold hover:opacity-90 transition-opacity shadow-sm"
+                                >
+                                    ⭐ Nâng cấp Pro
+                                </a>
+                            )}
+                            <Link
+                                href="/profile"
+                                className="px-5 py-2 text-gold border border-gold/40 rounded-lg hover:bg-gold/10 transition-colors font-medium text-sm"
+                            >
+                                👤 Tài khoản
+                            </Link>
+                        </>
                     ) : (
                         <>
                             <Link
@@ -146,26 +186,39 @@ export function Header() {
                     >
                         Giới thiệu
                     </Link>
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex flex-col gap-3 pt-2">
                         {isLoggedIn ? (
-                            <Link
-                                href="/profile"
-                                className="flex-1 text-center px-4 py-2 text-gold border border-gold/40 rounded-lg text-sm"
-                                onClick={() => setMenuOpen(false)}
-                            >
-                                👤 Tài khoản
-                            </Link>
+                            <>
+                                {isFree && zaloNumber && (
+                                    <a
+                                        href={`https://zalo.me/${zaloNumber}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-center px-4 py-2 bg-gradient-to-r from-gold to-primary text-white rounded-lg text-sm font-heading font-semibold"
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        ⭐ Nâng cấp Pro
+                                    </a>
+                                )}
+                                <Link
+                                    href="/profile"
+                                    className="text-center px-4 py-2 text-gold border border-gold/40 rounded-lg text-sm"
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    👤 Tài khoản
+                                </Link>
+                            </>
                         ) : (
                             <>
                                 <Link
                                     href="/login"
-                                    className="flex-1 text-center px-4 py-2 text-gold border border-gold/40 rounded-lg text-sm"
+                                    className="text-center px-4 py-2 text-gold border border-gold/40 rounded-lg text-sm"
                                 >
                                     Đăng nhập
                                 </Link>
                                 <Link
                                     href="/register"
-                                    className="flex-1 text-center px-4 py-2 bg-primary text-text-light rounded-lg text-sm"
+                                    className="text-center px-4 py-2 bg-primary text-text-light rounded-lg text-sm"
                                 >
                                     Đăng ký
                                 </Link>
