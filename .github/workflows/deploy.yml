@@ -119,12 +119,11 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
+          format: html
           message: |
-            ✅ *Deploy Thái Ất thành công*
-            📦 Commit: `${{ github.sha }}`
+            ✅ <b>Deploy Thái Ất thành công</b>
+            📦 Commit: ${{ github.sha }}
             👤 By: ${{ github.actor }}
-            📝 ${{ github.event.head_commit.message }}
 
       - name: Telegram - Failed ❌
         if: failure()
@@ -132,9 +131,9 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
+          format: html
           message: |
-            ❌ *Deploy Thái Ất thất bại!*
-            📦 Commit: `${{ github.sha }}`
+            ❌ <b>Deploy Thái Ất thất bại!</b>
+            📦 Commit: ${{ github.sha }}
             👤 By: ${{ github.actor }}
-            🔗 [Xem logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            🔗 <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">Xem logs</a>
