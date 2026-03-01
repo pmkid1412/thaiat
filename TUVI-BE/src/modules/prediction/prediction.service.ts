@@ -448,6 +448,7 @@ export class PredictionService {
       impactLevelId: prediction.impactLevel.id,
       type: prediction.type,
       status: prediction.status,
+      thumbnailUrl: prediction.thumbnailUrl,
     };
 
     const predictionData = prediction.predictionData.map((pd) => {
@@ -603,6 +604,7 @@ export class PredictionService {
       'evidences.confidenceScore',
       'evidences.quote',
       'prediction.type',
+      'prediction.thumbnailUrl',
     ];
     qb.select(selections);
     qb.where('prediction.deletedAt IS NULL');
@@ -634,6 +636,7 @@ export class PredictionService {
       tags: prediction.predictionTags.map((pt) => pt.tag?.name ?? null),
       evidences: prediction.evidences,
       type: prediction.type,
+      thumbnailUrl: prediction.thumbnailUrl,
     };
   }
 
