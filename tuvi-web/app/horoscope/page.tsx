@@ -232,10 +232,17 @@ function YearlyView({ data }: { data: { html_report?: string } }) {
     if (!data.html_report) {
         return <p className="text-text-muted text-center py-8">Chưa có dữ liệu tử vi tổng quan.</p>;
     }
+
+    // Post-process HTML to highlight "Lời khuyên hành động cụ thể" section
+    const processedHtml = data.html_report.replace(
+        /(<b>Lời khuyên hành động cụ thể:<\/b>)([\s\S]*?)(<\/p>)/i,
+        '<div class="advice-highlight"><b>💡 Lời khuyên hành động cụ thể:</b>$2</div>$3'
+    );
+
     return (
         <div
             className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: data.html_report }}
+            dangerouslySetInnerHTML={{ __html: processedHtml }}
         />
     );
 }
