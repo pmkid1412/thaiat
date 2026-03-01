@@ -141,8 +141,8 @@ export default async function PredictionsPage({
             {/* Content */}
             <section className="py-10 md:py-14">
                 <div className="mx-auto max-w-[var(--container-max)] px-6">
-                    {/* Filter Tabs */}
-                    <div className="flex items-center gap-2 mb-8">
+                    {/* Filter Tabs — temporarily hidden */}
+                    {/* <div className="flex items-center gap-2 mb-8">
                         {FILTER_OPTIONS.map((opt) => {
                             const isActive = filter === opt.key;
                             const href = opt.key === "all"
@@ -161,7 +161,7 @@ export default async function PredictionsPage({
                                 </Link>
                             );
                         })}
-                    </div>
+                    </div> */}
 
                     {predictions.length > 0 ? (
                         <>
