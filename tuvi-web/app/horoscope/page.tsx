@@ -390,13 +390,33 @@ function HoroscopeForm({
                 <label className={labelClass}>
                     Ngày sinh ({calendarType === "solar" ? "dương lịch" : "âm lịch"})
                 </label>
-                <input
-                    type="text"
-                    value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
-                    placeholder="dd/mm/yyyy"
-                    className={inputClass}
-                />
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={dateOfBirth}
+                        onChange={(e) => {
+                            let val = e.target.value.replace(/[^\d/]/g, "");
+                            if (val.length === 2 && dateOfBirth.length === 1) val += "/";
+                            if (val.length === 5 && dateOfBirth.length === 4) val += "/";
+                            if (val.length <= 10) setDateOfBirth(val);
+                        }}
+                        placeholder="dd/mm/yyyy"
+                        maxLength={10}
+                        className={inputClass + " pr-10"}
+                    />
+                    <input
+                        type="date"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        style={{ width: '40px', left: 'auto', right: '4px', top: '50%', transform: 'translateY(-50%)', height: '32px' }}
+                        onChange={(e) => {
+                            if (e.target.value) {
+                                const [y, m, d] = e.target.value.split("-");
+                                setDateOfBirth(`${d}/${m}/${y}`);
+                            }
+                        }}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">📅</span>
+                </div>
                 {calendarType === "lunar" && (
                     <label className="flex items-center gap-2 mt-2 text-sm text-text-muted">
                         <input

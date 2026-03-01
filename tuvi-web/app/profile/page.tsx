@@ -442,23 +442,36 @@ export default function ProfilePage() {
                                 {/* Date input dd/mm/yyyy */}
                                 <div>
                                     <label className="block text-xs text-text-muted mb-1">
-                                        Ngày sinh ({calendarType === "solar" ? "dương lịch" : "âm lịch"}) — dd/mm/yyyy
+                                        Ngày sinh ({calendarType === "solar" ? "dương lịch" : "âm lịch"})
                                     </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formDateOfBirth}
-                                        onChange={(e) => {
-                                            // Auto-add slashes
-                                            let val = e.target.value.replace(/[^\d/]/g, "");
-                                            if (val.length === 2 && formDateOfBirth.length === 1) val += "/";
-                                            if (val.length === 5 && formDateOfBirth.length === 4) val += "/";
-                                            if (val.length <= 10) setFormDateOfBirth(val);
-                                        }}
-                                        className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream"
-                                        placeholder="15/05/1990"
-                                        maxLength={10}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formDateOfBirth}
+                                            onChange={(e) => {
+                                                let val = e.target.value.replace(/[^\d/]/g, "");
+                                                if (val.length === 2 && formDateOfBirth.length === 1) val += "/";
+                                                if (val.length === 5 && formDateOfBirth.length === 4) val += "/";
+                                                if (val.length <= 10) setFormDateOfBirth(val);
+                                            }}
+                                            className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream pr-10"
+                                            placeholder="dd/mm/yyyy"
+                                            maxLength={10}
+                                        />
+                                        <input
+                                            type="date"
+                                            className="absolute inset-0 opacity-0 cursor-pointer"
+                                            style={{ width: '40px', left: 'auto', right: '4px', top: '50%', transform: 'translateY(-50%)', height: '32px' }}
+                                            onChange={(e) => {
+                                                if (e.target.value) {
+                                                    const [y, m, d] = e.target.value.split("-");
+                                                    setFormDateOfBirth(`${d}/${m}/${y}`);
+                                                }
+                                            }}
+                                        />
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">📅</span>
+                                    </div>
                                 </div>
 
                                 {/* Leap month checkbox (lunar only) */}
