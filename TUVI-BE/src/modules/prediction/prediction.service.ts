@@ -50,6 +50,8 @@ import {
 } from './dto/stats-prediction.dto';
 import { LanguageIdRequestDto } from 'src/common/dtos/index.dto';
 import { PredictionBookmark } from 'src/database/entities/prediction-bookmark.entity';
+import { SystemConfig } from 'src/database/entities/system-config.entity';
+import { SystemConfigCode } from 'src/common/constants/system-config.constant';
 
 @Injectable()
 export class PredictionService {
@@ -64,6 +66,8 @@ export class PredictionService {
     private readonly predictionStatusRepository: Repository<PredictionStatus>,
     @InjectRepository(PredictionBookmark)
     private readonly predictionBookmarkRepository: Repository<PredictionBookmark>,
+    @InjectRepository(SystemConfig)
+    private readonly systemConfigRepository: Repository<SystemConfig>,
     private readonly dataSource: DataSource,
   ) { }
 
@@ -1174,5 +1178,106 @@ export class PredictionService {
     }
 
     return result;
+  }
+
+  async generateTeaser(id: number): Promise<{ teaser: string }> {
+    // 1. Fetch prediction
+    const prediction = await this.predictionRepository.findOne({
+      where: { id },
+      relations: ['predictionData', 'predictionData.language'],
+    });
+    if (!prediction) {
+      throw new NotFoundException('Prediction not found');
+    }
+
+    // Get Vietnamese prediction data
+    const predData = prediction.predictionData?.find(
+      (pd) => pd.language?.id === 1,
+    ) || prediction.predictionData?.[0];
+
+    const title = predData?.title || 'Dự đoán mới';
+    const summary = predData?.summary || '';
+    // Strip HTML tags from description for AI prompt
+    const rawDescription = (predData?.description || '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 800);
+
+    // 2. Get AI API key
+    const configs = await this.systemConfigRepository.find({
+      where: {
+        code: In([
+          SystemConfigCode.AI_API_KEY,
+          SystemConfigCode.OPENAI_API_KEY,
+          SystemConfigCode.AI_PROVIDER_DEFAULT,
+        ]),
+      },
+    });
+
+    const geminiKey = configs.find(
+      (c) => c.code === SystemConfigCode.AI_API_KEY,
+    )?.value;
+
+    if (!geminiKey) {
+      // Fallback: simple template
+      return {
+        teaser: `🔮 ${title}\n\n${summary}\n\n👉 Đọc chi tiết tại Thái Ất Kim Hoa\n📱 Đăng ký tài khoản miễn phí để xem thêm!\n\n#ThaiAtKimHoa #DuDoan #TuVi`,
+      };
+    }
+
+    // 3. Build prompt
+    const prompt = `Bạn là chuyên gia marketing cho ứng dụng Thái Ất Kim Hoa — ứng dụng dự đoán và tử vi.
+Viết một đoạn giới thiệu Facebook (~150-200 từ) cho bài viết dự đoán sau:
+
+Tiêu đề: ${title}
+Tóm tắt: ${summary}
+Nội dung: ${rawDescription}
+
+Yêu cầu:
+- Hấp dẫn, tạo sự tò mò để người đọc muốn xem chi tiết
+- Kêu gọi click vào link để đọc tiếp
+- Nhấn mạnh: cần đăng ký tài khoản miễn phí để đọc
+- Gợi ý: nâng cấp Pro để đọc phân tích chuyên sâu
+- Sử dụng emoji phù hợp
+- Kết thúc bằng hashtag: #ThaiAtKimHoa #DuDoan #TuVi
+- Chỉ viết đoạn text, không cần tiêu đề hay format markdown`;
+
+    // 4. Call Gemini REST API
+    try {
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.9,
+            maxOutputTokens: 512,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Gemini API error:', response.status, await response.text());
+        throw new Error(`Gemini API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      const teaser =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+
+      if (!teaser) {
+        throw new Error('Empty AI response');
+      }
+
+      return { teaser };
+    } catch (error) {
+      console.error('AI teaser generation failed:', error);
+      // Fallback
+      return {
+        teaser: `🔮 ${title}\n\n${summary}\n\n👉 Đọc chi tiết tại Thái Ất Kim Hoa\n📱 Đăng ký tài khoản miễn phí để xem thêm!\n⭐ Nâng cấp Pro để đọc phân tích chuyên sâu\n\n#ThaiAtKimHoa #DuDoan #TuVi`,
+      };
+    }
   }
 }

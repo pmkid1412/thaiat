@@ -22,6 +22,7 @@ interface DataTableProps<TData, TValue> {
   onDelete?: (id: number) => void;
   onOpenEvidence?: (id: number) => void;
   onOpenPrediction?: (id: number) => void;
+  onShare?: (id: number) => void;
   loading?: boolean;
 }
 
@@ -32,6 +33,7 @@ export function PredictionList<TData, TValue>({
   onDelete,
   onOpenEvidence,
   onOpenPrediction,
+  onShare,
   loading,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -43,6 +45,7 @@ export function PredictionList<TData, TValue>({
       onDelete,
       onOpenEvidence,
       onOpenPrediction,
+      onShare,
     },
   });
 
@@ -57,9 +60,9 @@ export function PredictionList<TData, TValue>({
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                 </TableHead>
               );
             })}

@@ -45,7 +45,7 @@ import { SuccessResponseMessage } from 'src/common/constants/message.constant';
 @ApiBearerAuth()
 @Controller('predictions')
 export class PredictionController {
-  constructor(private readonly predictionService: PredictionService) {}
+  constructor(private readonly predictionService: PredictionService) { }
 
   @UseGuards(AdminGuard)
   @Post()
@@ -121,6 +121,13 @@ export class PredictionController {
   @ApiBaseResponse({ model: [StatsPredictionByConfidenceItemDto] })
   getPredictionsByConfidenceRange() {
     return this.predictionService.getPredictionsByConfidenceRange();
+  }
+
+  @UseGuards(AdminGuard)
+  @Post(':id/generate-teaser')
+  @ApiBaseResponse({ notFoundError: true })
+  async generateTeaser(@Param('id', ParseIntPipe) id: number) {
+    return this.predictionService.generateTeaser(id);
   }
 
   @UseGuards(UserGuard)

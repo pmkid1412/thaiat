@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import {
   createPrediction,
   deletePrediction,
+  generateTeaser,
   getDetailsByLanguageId,
   getPredictionOverview,
   getPredictions,
@@ -59,6 +60,11 @@ export const predictionKeys = {
       onSuccess: () => {
         toast.success("Dự đoán được xóa thành công");
       },
+    }),
+  generateTeaser: () =>
+    mutationOptions({
+      mutationKey: ["generate-teaser"],
+      mutationFn: (id: number) => generateTeaser(id),
     }),
   getPredictionOverview: () =>
     queryOptions({

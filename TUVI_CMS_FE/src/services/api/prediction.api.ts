@@ -93,3 +93,10 @@ export const getPredictionStatsByConfidence = async () => {
   >(`/predictions/stats/by-confidence`);
   return response.data.data;
 };
+
+export const generateTeaser = async (id: number) => {
+  const response = await client.post<SuccessResponse<{ teaser: string }>>(
+    `/predictions/${id}/generate-teaser`
+  );
+  return response.data.data;
+};

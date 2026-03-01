@@ -1,5 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { Crown, Edit, Ellipsis, Eye, Link, Trash2, TriangleAlert } from "lucide-react";
+import { Crown, Edit, Ellipsis, Eye, Link, Share2, Trash2, TriangleAlert } from "lucide-react";
 
 import {
   AlertDialog,
@@ -115,8 +115,9 @@ export const columns: ColumnDef<PredictionItem>[] = [
         onDelete?: (id: number) => void;
         onOpenEvidence?: (id: number) => void;
         onOpenPrediction?: (id: number) => void;
+        onShare?: (id: number) => void;
       };
-      const { onEdit, onDelete, onOpenEvidence, onOpenPrediction } = meta;
+      const { onEdit, onDelete, onOpenEvidence, onOpenPrediction, onShare } = meta;
 
       return (
         <div className="flex items-center justify-start">
@@ -155,6 +156,9 @@ export const columns: ColumnDef<PredictionItem>[] = [
               <div className="flex flex-col gap-0.5">
                 <Button variant="ghost" className="justify-start gap-2" onClick={() => onEdit?.(prediction.id)}>
                   <Edit className="h-4 w-4" /> Chỉnh sửa
+                </Button>
+                <Button variant="ghost" className="justify-start gap-2 text-blue-600" onClick={() => onShare?.(prediction.id)}>
+                  <Share2 className="h-4 w-4" /> Share Facebook
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
