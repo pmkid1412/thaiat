@@ -9,6 +9,15 @@ import api from "@/lib/api";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+// Convert plain text URLs to clickable links (only if not already inside an <a> tag)
+function autoLinkify(html: string): string {
+    // Match URLs not preceded by href=" or "> 
+    return html.replace(
+        /(?<!href=["'])(?<!["'>])(https?:\/\/[^\s<"']+)/gi,
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+    );
+}
+
 // Matches the flat response from backend findByIdConverted
 interface PredictionDetail {
     id: number;
@@ -313,7 +322,7 @@ export default function PredictionDetailPage() {
                         <div className="blur-sm select-none pointer-events-none max-h-40 overflow-hidden">
                             <div
                                 className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
-                                dangerouslySetInnerHTML={{ __html: prediction.description || "" }}
+                                dangerouslySetInnerHTML={{ __html: autoLinkify(prediction.description || "") }}
                             />
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface-cream" />
@@ -321,7 +330,7 @@ export default function PredictionDetailPage() {
                 ) : (
                     <div
                         className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: prediction.description || "" }}
+                        dangerouslySetInnerHTML={{ __html: autoLinkify(prediction.description || "") }}
                     />
                 )}
 
