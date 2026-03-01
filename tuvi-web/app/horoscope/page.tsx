@@ -165,7 +165,7 @@ function AdviceSection({ icon, title, text }: { icon: string; title: string; tex
             <h3 className="font-heading font-bold text-text-primary mb-2 flex items-center gap-2">
                 <span>{icon}</span> {title}
             </h3>
-            <div className="text-sm text-text-primary leading-relaxed whitespace-pre-line">
+            <div className="text-base text-text-primary leading-relaxed whitespace-pre-line">
                 {text}
             </div>
         </div>
@@ -193,7 +193,7 @@ function DailyView({ data }: { data: DailyData }) {
             {data.daily_quest && (
                 <div className="bg-gold/5 border-l-4 border-gold p-4 rounded-r-lg">
                     <p className="text-sm font-heading font-semibold text-text-primary mb-1">🎯 Nhiệm vụ hôm nay</p>
-                    <p className="text-sm text-text-primary leading-relaxed">{data.daily_quest}</p>
+                    <p className="text-base text-text-primary leading-relaxed">{data.daily_quest}</p>
                 </div>
             )}
             <AdviceSection icon="💼" title="Công việc" text={data.advice?.work} />
@@ -217,7 +217,7 @@ function MonthlyView({ data }: { data: MonthlyItem[] | MonthlyItem }) {
             {item.affirmation && (
                 <div className="bg-gold/5 border-l-4 border-gold p-4 rounded-r-lg">
                     <p className="text-sm font-heading font-semibold text-text-primary mb-1">✨ Lời khẳng định</p>
-                    <p className="text-sm text-text-primary leading-relaxed italic">{item.affirmation}</p>
+                    <p className="text-base text-text-primary leading-relaxed italic">{item.affirmation}</p>
                 </div>
             )}
             <AdviceSection icon="💼" title="Công việc" text={item.advice?.work} />
@@ -572,10 +572,17 @@ export default function HoroscopePage() {
             .finally(() => setInfoLoading(false));
     }, [router]);
 
-    // Fetch tab data
+    // Fetch tab data with AbortController to prevent race conditions
     useEffect(() => {
         const token = Cookies.get("accessToken");
         if (!token || !horoscopeInfo) return;
+
+        // If data is already cached, skip fetch
+        if (activeTab === "day" && dailyData) return;
+        if (activeTab === "month" && monthlyData) return;
+        if (activeTab === "year" && yearlyData) return;
+
+        const controller = new AbortController();
 
         const fetchData = async () => {
             setLoading(true);
@@ -586,15 +593,16 @@ export default function HoroscopePage() {
             try {
                 if (activeTab === "day") {
                     const res = await horoscopeApi.getToday();
-                    setDailyData(res.data?.data || res.data);
+                    if (!controller.signal.aborted) setDailyData(res.data?.data || res.data);
                 } else if (activeTab === "month") {
                     const res = await horoscopeApi.getMonth();
-                    setMonthlyData(res.data?.data || res.data);
+                    if (!controller.signal.aborted) setMonthlyData(res.data?.data || res.data);
                 } else {
                     const res = await horoscopeApi.getYear();
-                    setYearlyData(res.data?.data || res.data);
+                    if (!controller.signal.aborted) setYearlyData(res.data?.data || res.data);
                 }
             } catch (err: any) {
+                if (controller.signal.aborted) return; // Ignore aborted requests
                 if (err.response?.status === 401) {
                     router.push("/login?redirect=/horoscope");
                 } else if (err.response?.status === 404) {
@@ -612,12 +620,14 @@ export default function HoroscopePage() {
                     setError("Không thể tải dữ liệu tử vi. Vui lòng thử lại.");
                 }
             } finally {
-                setLoading(false);
+                if (!controller.signal.aborted) setLoading(false);
             }
         };
 
         fetchData();
-    }, [activeTab, horoscopeInfo, router]);
+
+        return () => controller.abort();
+    }, [activeTab, horoscopeInfo, router, dailyData, monthlyData, yearlyData]);
 
     const tabs = [
         { key: "day" as TabType, label: "📅 Hôm nay" },
