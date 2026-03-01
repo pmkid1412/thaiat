@@ -130,7 +130,7 @@ function YearlyView({ data }: { data: { html_report?: string } }) {
     }
     return (
         <div
-            className="prose prose-lg max-w-none text-text-primary leading-relaxed"
+            className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
             dangerouslySetInnerHTML={{ __html: data.html_report }}
         />
     );

@@ -83,6 +83,12 @@ h6 {
   height: 6px;
 }
 
+/* === Override backend HTML report fonts (yearly horoscope) === */
+.report-content,
+.report-content * {
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
 /* === Scrollbar === */
 ::-webkit-scrollbar {
   width: 8px;
