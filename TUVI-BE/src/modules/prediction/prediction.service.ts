@@ -1181,6 +1181,9 @@ export class PredictionService {
   }
 
   async generateTeaser(id: number): Promise<{ teaser: string }> {
+    const WEB_URL = 'https://web.thaiatkimhoa.vn';
+    const articleUrl = `${WEB_URL}/predictions/${id}`;
+
     // 1. Fetch prediction
     const prediction = await this.predictionRepository.findOne({
       where: { id },
@@ -1197,14 +1200,13 @@ export class PredictionService {
 
     const title = predData?.title || 'Dự đoán mới';
     const summary = predData?.summary || '';
-    // Strip HTML tags from description for AI prompt
     const rawDescription = (predData?.description || '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
       .substring(0, 800);
 
-    // 2. Get AI API key
+    // 2. Get AI API keys
     const configs = await this.systemConfigRepository.find({
       where: {
         code: In([
@@ -1218,13 +1220,9 @@ export class PredictionService {
     const geminiKey = configs.find(
       (c) => c.code === SystemConfigCode.AI_API_KEY,
     )?.value;
-
-    if (!geminiKey) {
-      // Fallback: simple template
-      return {
-        teaser: `🔮 ${title}\n\n${summary}\n\n👉 Đọc chi tiết tại Thái Ất Kim Hoa\n📱 Đăng ký tài khoản miễn phí để xem thêm!\n\n#ThaiAtKimHoa #DuDoan #TuVi`,
-      };
-    }
+    const openaiKey = configs.find(
+      (c) => c.code === SystemConfigCode.OPENAI_API_KEY,
+    )?.value;
 
     // 3. Build prompt
     const prompt = `Bạn là chuyên gia marketing cho ứng dụng Thái Ất Kim Hoa — ứng dụng dự đoán và tử vi.
@@ -1234,8 +1232,11 @@ Tiêu đề: ${title}
 Tóm tắt: ${summary}
 Nội dung: ${rawDescription}
 
+Link bài viết: ${articleUrl}
+
 Yêu cầu:
 - Hấp dẫn, tạo sự tò mò để người đọc muốn xem chi tiết
+- Kèm link bài viết "${articleUrl}" trong nội dung để người đọc click vào
 - Kêu gọi click vào link để đọc tiếp
 - Nhấn mạnh: cần đăng ký tài khoản miễn phí để đọc
 - Gợi ý: nâng cấp Pro để đọc phân tích chuyên sâu
@@ -1243,41 +1244,73 @@ Yêu cầu:
 - Kết thúc bằng hashtag: #ThaiAtKimHoa #DuDoan #TuVi
 - Chỉ viết đoạn text, không cần tiêu đề hay format markdown`;
 
-    // 4. Call Gemini REST API
-    try {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.9,
-            maxOutputTokens: 512,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        console.error('Gemini API error:', response.status, await response.text());
-        throw new Error(`Gemini API returned ${response.status}`);
+    // 4. Try Gemini first
+    if (geminiKey) {
+      try {
+        const teaser = await this.callGemini(geminiKey, prompt);
+        if (teaser) return { teaser };
+      } catch (error) {
+        console.error('Gemini teaser failed, trying OpenAI:', error?.message);
       }
-
-      const data = await response.json();
-      const teaser =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-
-      if (!teaser) {
-        throw new Error('Empty AI response');
-      }
-
-      return { teaser };
-    } catch (error) {
-      console.error('AI teaser generation failed:', error);
-      // Fallback
-      return {
-        teaser: `🔮 ${title}\n\n${summary}\n\n👉 Đọc chi tiết tại Thái Ất Kim Hoa\n📱 Đăng ký tài khoản miễn phí để xem thêm!\n⭐ Nâng cấp Pro để đọc phân tích chuyên sâu\n\n#ThaiAtKimHoa #DuDoan #TuVi`,
-      };
     }
+
+    // 5. Fallback to OpenAI
+    if (openaiKey) {
+      try {
+        const teaser = await this.callOpenAI(openaiKey, prompt);
+        if (teaser) return { teaser };
+      } catch (error) {
+        console.error('OpenAI teaser failed:', error?.message);
+      }
+    }
+
+    // 6. Last resort: simple template with article link
+    return {
+      teaser: `🔮 ${title}\n\n${summary}\n\n👉 Đọc chi tiết tại: ${articleUrl}\n📱 Đăng ký tài khoản miễn phí để xem thêm!\n⭐ Nâng cấp Pro để đọc phân tích chuyên sâu\n\n#ThaiAtKimHoa #DuDoan #TuVi`,
+    };
+  }
+
+  private async callGemini(apiKey: string, prompt: string): Promise<string> {
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.9, maxOutputTokens: 512 },
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  }
+
+  private async callOpenAI(apiKey: string, prompt: string): Promise<string> {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.9,
+        max_tokens: 512,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`OpenAI ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    return data?.choices?.[0]?.message?.content?.trim() || '';
   }
 }
