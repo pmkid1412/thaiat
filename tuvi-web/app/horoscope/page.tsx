@@ -547,7 +547,7 @@ export default function HoroscopePage() {
     const [yearlyData, setYearlyData] = useState<{ html_report?: string } | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [proLocked, setProLocked] = useState(false);
+    const [lockedTabs, setLockedTabs] = useState<Set<TabType>>(new Set());
     const [noHoroscope, setNoHoroscope] = useState(false);
 
     // Horoscope info state
@@ -577,29 +577,40 @@ export default function HoroscopePage() {
         const token = Cookies.get("accessToken");
         if (!token || !horoscopeInfo) return;
 
-        // If data is already cached, skip fetch
+        // If data is already cached or tab is locked, skip fetch
         if (activeTab === "day" && dailyData) return;
-        if (activeTab === "month" && monthlyData) return;
-        if (activeTab === "year" && yearlyData) return;
+        if (activeTab === "month" && (monthlyData || lockedTabs.has("month"))) return;
+        if (activeTab === "year" && (yearlyData || lockedTabs.has("year"))) return;
 
         const controller = new AbortController();
 
         const fetchData = async () => {
             setLoading(true);
             setError(null);
-            setProLocked(false);
             setNoHoroscope(false);
 
             try {
                 if (activeTab === "day") {
                     const res = await horoscopeApi.getToday();
-                    if (!controller.signal.aborted) setDailyData(res.data?.data || res.data);
+                    if (!controller.signal.aborted) {
+                        const d = res.data?.data ?? res.data;
+                        if (d && d.success !== false) setDailyData(d);
+                        else setNoHoroscope(true);
+                    }
                 } else if (activeTab === "month") {
                     const res = await horoscopeApi.getMonth();
-                    if (!controller.signal.aborted) setMonthlyData(res.data?.data || res.data);
+                    if (!controller.signal.aborted) {
+                        const d = res.data?.data;
+                        if (d && res.data?.success !== false) setMonthlyData(d);
+                        else setLockedTabs(prev => new Set(prev).add("month"));
+                    }
                 } else {
                     const res = await horoscopeApi.getYear();
-                    if (!controller.signal.aborted) setYearlyData(res.data?.data || res.data);
+                    if (!controller.signal.aborted) {
+                        const d = res.data?.data;
+                        if (d && res.data?.success !== false) setYearlyData(d);
+                        else setLockedTabs(prev => new Set(prev).add("year"));
+                    }
                 }
             } catch (err: any) {
                 if (controller.signal.aborted) return; // Ignore aborted requests
@@ -611,10 +622,10 @@ export default function HoroscopePage() {
                         if (activeTab === "day") {
                             setNoHoroscope(true);
                         } else {
-                            setProLocked(true);
+                            setLockedTabs(prev => new Set(prev).add(activeTab));
                         }
                     } else {
-                        setProLocked(true);
+                        setLockedTabs(prev => new Set(prev).add(activeTab));
                     }
                 } else {
                     setError("Không thể tải dữ liệu tử vi. Vui lòng thử lại.");
@@ -648,6 +659,7 @@ export default function HoroscopePage() {
                     setDailyData(null);
                     setMonthlyData(null);
                     setYearlyData(null);
+                    setLockedTabs(new Set());
                 }
             })
             .catch(() => { });
@@ -671,7 +683,7 @@ export default function HoroscopePage() {
                 </div>
             );
         }
-        if (proLocked) return <ProGate tab={activeTab} />;
+        if (lockedTabs.has(activeTab)) return <ProGate tab={activeTab} />;
         if (error) {
             return (
                 <div className="text-center py-16">
