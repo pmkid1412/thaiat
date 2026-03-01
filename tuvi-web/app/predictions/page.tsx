@@ -87,8 +87,14 @@ export default async function PredictionsPage({
     return (
         <div className="bg-surface-cream min-h-screen">
             {/* Page Header */}
-            <section className="bg-surface-dark ink-divider">
-                <div className="mx-auto max-w-[var(--container-max)] px-6 py-12 md:py-16 text-center">
+            <section className="bg-surface-dark relative overflow-hidden">
+                <img
+                    src="/assets/images/hero-banner.png"
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/50" />
+                <div className="relative mx-auto max-w-[var(--container-max)] px-6 py-12 md:py-16 text-center">
                     <h1 className="font-heading text-3xl md:text-4xl font-bold text-text-light mb-3">
                         Bài viết dự đoán
                     </h1>
