@@ -33,6 +33,15 @@ jobs:
         working-directory: TUVI_CMS_FE
         run: npx vite build
 
+      # Web build test
+      - name: Web - Install dependencies
+        working-directory: tuvi-web
+        run: npm ci
+
+      - name: Web - Build
+        working-directory: tuvi-web
+        run: npm run build
+
   # ── Step 2: Deploy to VPS ──
   deploy:
     needs: build-test
@@ -48,7 +57,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
-          source: "TUVI-BE/,TUVI_CMS_FE/,FINAL_HANDOFF/,deploy.sh,.github/"
+          source: "TUVI-BE/,TUVI_CMS_FE/,tuvi-web/,FINAL_HANDOFF/,deploy.sh,.github/"
           target: /root/app
           overwrite: true
           strip_components: 0
@@ -64,7 +73,7 @@ jobs:
           command_timeout: 10m
           script: |
             cd /root/app/TUVI-BE
-            docker compose -f docker/docker-compose.yml up -d --build app cms
+            docker compose -f docker/docker-compose.yml up -d --build app cms web
 
             # Copy prediction tool files into BE container
             CONTAINER_ID=$(docker ps -q -f name=be-app | head -1)
