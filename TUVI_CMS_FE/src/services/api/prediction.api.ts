@@ -100,3 +100,14 @@ export const generateTeaser = async (id: number) => {
   );
   return response.data.data;
 };
+
+export const uploadPredictionImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await client.post<SuccessResponse<{ url: string }>>(
+    "/predictions/upload-image",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data.data;
+};

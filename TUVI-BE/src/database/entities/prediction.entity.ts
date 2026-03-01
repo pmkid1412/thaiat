@@ -37,6 +37,9 @@ export class Prediction extends SoftDelete {
   @Column({ name: 'type' })
   type: string;
 
+  @Column({ name: 'thumbnail_url', nullable: true })
+  thumbnailUrl: string;
+
   @Column()
   status: string;
 

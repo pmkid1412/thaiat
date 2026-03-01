@@ -28,6 +28,7 @@ export function toCreatePredictionRequest(
       ? PREDICTION_STATUSES.DRAFT
       : PREDICTION_STATUSES.PUBLISHED,
     tags: data.tags?.trim() || "",
+    thumbnailUrl: data.thumbnailUrl,
     predictionData: data.predictionData
       .filter((d) =>
         [d.title, d.summary, d.description].every(
@@ -82,6 +83,7 @@ export function toPredictionFormData(
     areas: areaIds,
     tags: (data.tags || []).join(", "),
     type: data.type,
+    thumbnailUrl: data.thumbnailUrl,
     predictionData,
     isDraft: data.status === PREDICTION_STATUSES.DRAFT,
   };

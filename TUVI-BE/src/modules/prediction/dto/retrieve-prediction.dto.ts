@@ -88,4 +88,7 @@ export class RetrievePredictionResponseDto {
 
   @ApiProperty()
   impactLevelId: number;
+
+  @ApiProperty({ required: false })
+  thumbnailUrl: string;
 }

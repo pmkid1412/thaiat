@@ -1,8 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, type FC } from "react";
+import { useCallback, useEffect, useState, type FC } from "react";
 import { useForm, type FieldErrors } from "react-hook-form";
 import { toast } from "sonner";
+import { ImageUp, Trash2 } from "lucide-react";
 
 import { DateField } from "@/components/form/DateField";
 import RadioGroupField from "@/components/form/RadioGroupField";
@@ -19,6 +20,7 @@ import { Form } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { commonKeys } from "@/services/queries/common.query";
+import { uploadPredictionImage } from "@/services/api/prediction.api";
 import type { CreatePredictionRequest } from "@/services/types/prediction.type";
 import { PREDICTION_TYPES } from "@/shared/constants";
 import { toCreatePredictionRequest } from "@/shared/mappers";
@@ -26,6 +28,8 @@ import {
   predictionFormSchema,
   type PredictionFormData,
 } from "@/shared/schemas/prediction.schema";
+
+const API_URL = import.meta.env.VITE_API_URL || "https://api.thaiatkimhoa.vn";
 
 interface PredictionFormProps {
   languageId?: number;
@@ -53,6 +57,9 @@ export const PredictionForm: FC<PredictionFormProps> = ({
     resolver: zodResolver(predictionFormSchema),
     defaultValues,
   });
+
+  const [uploading, setUploading] = useState(false);
+  const thumbnailUrl = form.watch("thumbnailUrl");
 
   useEffect(() => {
     if (defaultValues) {
@@ -85,6 +92,37 @@ export const PredictionForm: FC<PredictionFormProps> = ({
       }
     }
   };
+
+  const handleImageUpload = useCallback(
+    async (file: File) => {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Chỉ hỗ trợ file ảnh JPG, PNG hoặc WebP");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Kích thước file tối đa 5MB");
+        return;
+      }
+      setUploading(true);
+      try {
+        const result = await uploadPredictionImage(file);
+        form.setValue("thumbnailUrl", result.url, { shouldDirty: true });
+        toast.success("Upload ảnh thành công");
+      } catch {
+        toast.error("Lỗi upload ảnh");
+      } finally {
+        setUploading(false);
+      }
+    },
+    [form]
+  );
+
+  const fullThumbnailUrl = thumbnailUrl
+    ? thumbnailUrl.startsWith("http")
+      ? thumbnailUrl
+      : `${API_URL}${thumbnailUrl}`
+    : null;
 
   return (
     <Form {...form}>
@@ -193,6 +231,79 @@ export const PredictionForm: FC<PredictionFormProps> = ({
                   options={getPredictionStatusesQuery.data || []}
                 />
               </div>
+            </FieldGroup>
+          </FieldSet>
+        </Card>
+
+        {/* Image upload section */}
+        <Card className="p-6 shadow-xs">
+          <FieldSet>
+            <FieldLegend>Ảnh minh họa</FieldLegend>
+            <FieldGroup>
+              {fullThumbnailUrl ? (
+                <div className="relative group">
+                  <img
+                    src={fullThumbnailUrl}
+                    alt="Ảnh minh họa"
+                    className="w-full max-h-64 object-cover rounded-lg border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() =>
+                      form.setValue("thumbnailUrl", undefined, {
+                        shouldDirty: true,
+                      })
+                    }
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              ) : (
+                <label
+                  className={cn(
+                    "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
+                    "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
+                    uploading && "pointer-events-none opacity-50"
+                  )}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleImageUpload(file);
+                  }}
+                >
+                  {uploading ? (
+                    <Spinner />
+                  ) : (
+                    <ImageUp className="mb-2 size-8 text-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {uploading
+                      ? "Đang upload..."
+                      : "Kéo thả ảnh hoặc click để chọn"}
+                  </span>
+                  <span className="mt-1 text-xs text-muted-foreground">
+                    JPG, PNG, WebP (Tối đa 5MB)
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file);
+                    }}
+                    disabled={uploading}
+                  />
+                </label>
+              )}
             </FieldGroup>
           </FieldSet>
         </Card>

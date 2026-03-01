@@ -19,6 +19,7 @@ export interface CreatePredictionRequest {
   predictionData: PredictionDataFormData[];
   type: PredictionType;
   status: PredictionStatus;
+  thumbnailUrl?: string;
 }
 
 export type PredictionSearchParams = {
@@ -43,6 +44,7 @@ export interface PredictionItem {
   areas: string[];
   status: PredictionStatus;
   type: PredictionType;
+  thumbnailUrl?: string;
 }
 
 export interface PredictionListResponse {
@@ -95,6 +97,7 @@ export interface PredictionDetails {
   predictionStatusId: number;
   type: PredictionType;
   status: PredictionStatus;
+  thumbnailUrl?: string;
 }
 
 export type PredictionOverviewResponse = {

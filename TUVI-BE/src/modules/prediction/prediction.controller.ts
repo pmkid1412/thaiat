@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,7 +9,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { PredictionService } from './prediction.service';
@@ -40,12 +43,59 @@ import { UserRole, UserType } from 'src/common/constants/user.constant';
 import { OptionalJwtAuthGuard } from 'src/common/guards/optional.guard';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { UserGuard } from 'src/common/guards/user.guard';
-import { SuccessResponseMessage } from 'src/common/constants/message.constant';
+import { SuccessResponseMessage, ErrorResponseMessage } from 'src/common/constants/message.constant';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { basename, extname } from 'path';
+import { ValidatorUtil } from 'src/common/utils/validator.util';
+import * as fs from 'fs';
 
 @ApiBearerAuth()
 @Controller('predictions')
 export class PredictionController {
   constructor(private readonly predictionService: PredictionService) { }
+
+  @UseGuards(AdminGuard)
+  @Post('upload-image')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const dir = './uploads/predictions';
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+          cb(null, dir);
+        },
+        filename: (req, file, cb) => {
+          const timestamp = Date.now();
+          const name = basename(file.originalname, extname(file.originalname));
+          const safeName = name.replace(/[^a-zA-Z0-9_-]/g, '');
+          const extension = extname(file.originalname);
+          cb(null, `${timestamp}_${safeName}${extension}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          const error = ValidatorUtil.addCustomError('file', {
+            isInvalid: ErrorResponseMessage.INVALID_FILE_TYPE,
+          });
+          cb(new BadRequestException({ errors: [error] }), false);
+        }
+      },
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  )
+  @ApiBaseResponse({ badRequest: true })
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+    return { url: `/uploads/predictions/${file.filename}` };
+  }
 
   @UseGuards(AdminGuard)
   @Post()

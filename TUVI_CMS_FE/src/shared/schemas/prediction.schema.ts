@@ -30,6 +30,7 @@ export const predictionFormSchema = z
     type: z
       .enum(PREDICTION_TYPES)
       .nonoptional({ error: "Vui lòng chọn loại dự đoán" }),
+    thumbnailUrl: z.string().optional(),
     isDraft: z
       .boolean()
       .nonoptional({ error: "Vui lòng chọn trạng thái bản nháp" }),

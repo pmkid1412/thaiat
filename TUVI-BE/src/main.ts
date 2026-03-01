@@ -33,6 +33,9 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // Serve uploaded files (images, etc.)
+  app.useStaticAssets('uploads', { prefix: '/uploads' });
+
   app.set('trust proxy', true);
 
   app.useGlobalInterceptors(new ResponseInterceptor());

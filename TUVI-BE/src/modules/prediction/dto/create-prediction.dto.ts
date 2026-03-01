@@ -116,6 +116,11 @@ export class CreatePredictionRequestDto {
 
   @ApiProperty({ required: false })
   @IsString({ message: ErrorResponseMessage.INVALID_STRING_TYPE })
+  @IsOptional()
+  thumbnailUrl: string;
+
+  @ApiProperty({ required: false })
+  @IsString({ message: ErrorResponseMessage.INVALID_STRING_TYPE })
   @Transform(({ value }) => value?.trim())
   tags: string;
 
