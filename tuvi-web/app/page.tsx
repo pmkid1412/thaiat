@@ -3,14 +3,20 @@ import { PredictionCard } from "@/components/prediction/PredictionCard";
 
 // Server-side data fetching
 async function getFeaturedPredictions() {
+  const apiUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn";
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn"}/predictions?page=1&limit=6`,
+      `${apiUrl}/predictions?page=1&pageSize=6`,
       { next: { revalidate: 300 } } // Revalidate every 5 minutes
     );
     if (!res.ok) return [];
     const json = await res.json();
-    return json?.data?.data || [];
+    // API returns data grouped by date: { "2026-03-01": [...], ... }
+    const grouped = json?.data?.data;
+    if (grouped && typeof grouped === "object" && !Array.isArray(grouped)) {
+      return Object.values(grouped).flat();
+    }
+    return grouped || [];
   } catch {
     return [];
   }

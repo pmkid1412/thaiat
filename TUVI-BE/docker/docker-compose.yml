@@ -135,6 +135,7 @@ services:
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: https://api.thaiatkimhoa.vn
+      INTERNAL_API_URL: http://app:3000
     networks:
       - appnet
 

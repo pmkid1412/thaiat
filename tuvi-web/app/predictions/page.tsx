@@ -23,6 +23,8 @@ async function getPredictions(
     page: number = 1,
     search?: string
 ) {
+    // Server-side: use internal Docker network URL; Client-side: use public URL
+    const apiUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn";
     try {
         const params = new URLSearchParams({
             page: String(page),
@@ -31,16 +33,24 @@ async function getPredictions(
         if (search) params.set("search", search);
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn"}/predictions?${params}`,
+            `${apiUrl}/predictions?${params}`,
             { next: { revalidate: 60 } }
         );
         if (!res.ok) return { data: [], total: 0, page: 1, pageSize: 12 };
         const json = await res.json();
+        // API returns data grouped by date: { "2026-03-01": [...], ... }
+        const rawData = json?.data?.data;
+        let items: PredictionItem[] = [];
+        if (rawData && typeof rawData === "object" && !Array.isArray(rawData)) {
+            items = Object.values(rawData).flat() as PredictionItem[];
+        } else if (Array.isArray(rawData)) {
+            items = rawData;
+        }
         return {
-            data: json?.data?.data || json?.data || [],
+            data: items,
             total: json?.data?.total || 0,
             page: json?.data?.page || 1,
-            pageSize: json?.data?.pageSize || json?.data?.limit || 12,
+            pageSize: json?.data?.pageSize || 12,
         };
     } catch {
         return { data: [], total: 0, page: 1, pageSize: 12 };
