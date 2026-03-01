@@ -42,27 +42,25 @@ export function PredictionCard({
     const isPro = type?.toLowerCase() === "pro";
 
     return (
-        <Link href={`/predictions/${id}`}>
-            <article className="prediction-card bg-white rounded-xl p-5 shadow-sm border border-surface-light hover:border-gold/30 cursor-pointer relative">
-                {/* Pro Badge */}
-                {isPro && (
-                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-gradient-to-r from-gold to-primary text-white text-[10px] font-bold rounded-full uppercase tracking-wide shadow-sm">
-                        PRO
-                    </span>
-                )}
-
-                {/* Header: Score + Domain */}
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-primary font-heading">
+        <Link href={`/predictions/${id}`} className="block h-full">
+            <article className="prediction-card bg-white rounded-xl p-5 shadow-sm border border-surface-light hover:border-gold/30 cursor-pointer h-full flex flex-col">
+                {/* Header: Score + Domain + Pro + Status */}
+                <div className="flex items-center justify-between mb-3 gap-2">
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                        <span className="text-sm font-bold text-primary font-heading whitespace-nowrap">
                             📊 {confidenceScore}%
                         </span>
-                        <span className="text-xs px-2 py-0.5 bg-surface-light rounded-full text-text-muted">
+                        <span className="text-xs px-2 py-0.5 bg-surface-light rounded-full text-text-muted truncate">
                             {domainName}
                         </span>
+                        {isPro && (
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-gold to-primary text-white text-[10px] font-bold rounded-full uppercase tracking-wide shadow-sm whitespace-nowrap">
+                                PRO
+                            </span>
+                        )}
                     </div>
                     <span
-                        className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStatusColor(predictionStatus)}`}
+                        className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0 ${getStatusColor(predictionStatus)}`}
                     >
                         {predictionStatus}
                     </span>
@@ -74,12 +72,12 @@ export function PredictionCard({
                 </h3>
 
                 {/* Summary */}
-                <p className="text-sm text-text-muted leading-relaxed line-clamp-3 mb-3">
+                <p className="text-sm text-text-muted leading-relaxed line-clamp-3 mb-3 flex-1">
                     {summary}
                 </p>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between text-xs text-text-muted">
+                <div className="flex items-center justify-between text-xs text-text-muted mt-auto">
                     {predictionDate && (
                         <span>📅 {new Date(predictionDate).toLocaleDateString("vi-VN")}</span>
                     )}

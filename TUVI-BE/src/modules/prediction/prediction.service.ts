@@ -332,7 +332,7 @@ export class PredictionService {
       .skip((page - 1) * pageSize)
       .take(pageSize);
 
-    const [data, _] = await qb.getManyAndCount();
+    const [data, total] = await qb.getManyAndCount();
     let result: Record<string, any> = {};
     if (predictionType === PredictionType.MONTHLY) {
       result = this.convertMonthlyPredictions(data);
@@ -342,10 +342,10 @@ export class PredictionService {
 
     return {
       data: result,
-      total: data.length,
+      total,
       page,
       pageSize,
-      totalPages: page,
+      totalPages: Math.ceil(total / pageSize),
     };
   }
 
