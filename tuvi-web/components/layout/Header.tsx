@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
 export function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        setIsLoggedIn(!!Cookies.get("accessToken"));
+    }, []);
 
     return (
         <header className="bg-surface-dark sticky top-0 z-50 border-b border-white/10">
@@ -32,6 +38,14 @@ export function Header() {
                     >
                         Tử vi
                     </Link>
+                    {isLoggedIn && (
+                        <Link
+                            href="/bookmarks"
+                            className="text-text-light/80 hover:text-gold transition-colors font-medium"
+                        >
+                            Đã lưu
+                        </Link>
+                    )}
                     <Link
                         href="https://thaiatkimhoa.vn"
                         target="_blank"
@@ -43,18 +57,29 @@ export function Header() {
 
                 {/* Auth Buttons */}
                 <div className="hidden md:flex items-center gap-3">
-                    <Link
-                        href="/login"
-                        className="px-5 py-2 text-gold border border-gold/40 rounded-lg hover:bg-gold/10 transition-colors font-medium text-sm"
-                    >
-                        Đăng nhập
-                    </Link>
-                    <Link
-                        href="/register"
-                        className="px-5 py-2 bg-primary text-text-light rounded-lg hover:bg-primary-dark transition-colors font-medium text-sm"
-                    >
-                        Đăng ký
-                    </Link>
+                    {isLoggedIn ? (
+                        <Link
+                            href="/profile"
+                            className="px-5 py-2 text-gold border border-gold/40 rounded-lg hover:bg-gold/10 transition-colors font-medium text-sm"
+                        >
+                            👤 Tài khoản
+                        </Link>
+                    ) : (
+                        <>
+                            <Link
+                                href="/login"
+                                className="px-5 py-2 text-gold border border-gold/40 rounded-lg hover:bg-gold/10 transition-colors font-medium text-sm"
+                            >
+                                Đăng nhập
+                            </Link>
+                            <Link
+                                href="/register"
+                                className="px-5 py-2 bg-primary text-text-light rounded-lg hover:bg-primary-dark transition-colors font-medium text-sm"
+                            >
+                                Đăng ký
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -105,6 +130,15 @@ export function Header() {
                     >
                         Tử vi
                     </Link>
+                    {isLoggedIn && (
+                        <Link
+                            href="/bookmarks"
+                            className="block text-text-light/80 hover:text-gold py-2"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            🔖 Đã lưu
+                        </Link>
+                    )}
                     <Link
                         href="https://thaiatkimhoa.vn"
                         target="_blank"
@@ -113,18 +147,30 @@ export function Header() {
                         Giới thiệu
                     </Link>
                     <div className="flex gap-3 pt-2">
-                        <Link
-                            href="/login"
-                            className="flex-1 text-center px-4 py-2 text-gold border border-gold/40 rounded-lg text-sm"
-                        >
-                            Đăng nhập
-                        </Link>
-                        <Link
-                            href="/register"
-                            className="flex-1 text-center px-4 py-2 bg-primary text-text-light rounded-lg text-sm"
-                        >
-                            Đăng ký
-                        </Link>
+                        {isLoggedIn ? (
+                            <Link
+                                href="/profile"
+                                className="flex-1 text-center px-4 py-2 text-gold border border-gold/40 rounded-lg text-sm"
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                👤 Tài khoản
+                            </Link>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/login"
+                                    className="flex-1 text-center px-4 py-2 text-gold border border-gold/40 rounded-lg text-sm"
+                                >
+                                    Đăng nhập
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    className="flex-1 text-center px-4 py-2 bg-primary text-text-light rounded-lg text-sm"
+                                >
+                                    Đăng ký
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

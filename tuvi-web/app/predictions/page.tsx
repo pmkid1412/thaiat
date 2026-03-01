@@ -3,8 +3,9 @@ import { PredictionCard } from "@/components/prediction/PredictionCard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Bài viết dự đoán — Thái Ất Kim Hoa",
-    description: "Danh sách bài viết dự đoán về kinh tế, xã hội, thiên nhiên từ Thái Ất Kim Hoa.",
+    title: "Bài viết dự đoán",
+    description:
+        "Danh sách bài viết dự đoán về kinh tế, xã hội, thiên nhiên từ Thái Ất Kim Hoa.",
 };
 
 interface PredictionItem {
@@ -18,10 +19,19 @@ interface PredictionItem {
     areas: string[];
 }
 
-async function getPredictions(page: number = 1) {
+async function getPredictions(
+    page: number = 1,
+    search?: string
+) {
     try {
+        const params = new URLSearchParams({
+            page: String(page),
+            limit: "12",
+        });
+        if (search) params.set("search", search);
+
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn"}/predictions?page=${page}&limit=12`,
+            `${process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn"}/predictions?${params}`,
             { next: { revalidate: 60 } }
         );
         if (!res.ok) return { data: [], total: 0, page: 1, limit: 12 };
@@ -40,11 +50,16 @@ async function getPredictions(page: number = 1) {
 export default async function PredictionsPage({
     searchParams,
 }: {
-    searchParams: Promise<{ page?: string }>;
+    searchParams: Promise<{ page?: string; search?: string }>;
 }) {
     const params = await searchParams;
     const currentPage = parseInt(params.page || "1", 10);
-    const { data: predictions, total, limit } = await getPredictions(currentPage);
+    const search = params.search || "";
+    const {
+        data: predictions,
+        total,
+        limit,
+    } = await getPredictions(currentPage, search);
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
@@ -55,9 +70,43 @@ export default async function PredictionsPage({
                     <h1 className="font-heading text-3xl md:text-4xl font-bold text-text-light mb-3">
                         Bài viết dự đoán
                     </h1>
-                    <p className="text-text-light/60 max-w-xl mx-auto">
+                    <p className="text-text-light/60 max-w-xl mx-auto mb-6">
                         Phân tích và dự đoán dựa trên phương pháp Thái Ất Kim Hoa
                     </p>
+
+                    {/* Search Bar */}
+                    <form
+                        action="/predictions"
+                        method="GET"
+                        className="max-w-lg mx-auto"
+                    >
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                name="search"
+                                defaultValue={search}
+                                placeholder="Tìm kiếm bài viết..."
+                                className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-text-light placeholder-text-light/40 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-colors"
+                            />
+                            <button
+                                type="submit"
+                                className="px-6 py-3 bg-primary hover:bg-primary-dark text-text-light rounded-xl font-medium transition-colors"
+                            >
+                                🔍
+                            </button>
+                        </div>
+                        {search && (
+                            <div className="mt-3 text-sm text-text-light/60">
+                                Kết quả cho &quot;{search}&quot; — {total} bài viết
+                                <Link
+                                    href="/predictions"
+                                    className="ml-2 text-gold hover:underline"
+                                >
+                                    Xóa bộ lọc
+                                </Link>
+                            </div>
+                        )}
+                    </form>
                 </div>
             </section>
 
@@ -87,7 +136,7 @@ export default async function PredictionsPage({
                                 <div className="flex justify-center items-center gap-3 mt-10">
                                     {currentPage > 1 && (
                                         <Link
-                                            href={`/predictions?page=${currentPage - 1}`}
+                                            href={`/predictions?page=${currentPage - 1}${search ? `&search=${search}` : ""}`}
                                             className="px-4 py-2 bg-white border border-surface-light rounded-lg text-sm hover:border-primary transition-colors"
                                         >
                                             ← Trước
@@ -98,7 +147,7 @@ export default async function PredictionsPage({
                                     </span>
                                     {currentPage < totalPages && (
                                         <Link
-                                            href={`/predictions?page=${currentPage + 1}`}
+                                            href={`/predictions?page=${currentPage + 1}${search ? `&search=${search}` : ""}`}
                                             className="px-4 py-2 bg-white border border-surface-light rounded-lg text-sm hover:border-primary transition-colors"
                                         >
                                             Tiếp →
@@ -110,9 +159,16 @@ export default async function PredictionsPage({
                     ) : (
                         <div className="text-center py-16 text-text-muted">
                             <p className="text-5xl mb-4">📊</p>
-                            <p className="text-lg">Chưa có bài viết dự đoán nào.</p>
-                            <Link href="/" className="text-primary hover:underline mt-2 inline-block">
-                                ← Quay về trang chủ
+                            <p className="text-lg">
+                                {search
+                                    ? `Không tìm thấy kết quả cho "${search}"`
+                                    : "Chưa có bài viết dự đoán nào."}
+                            </p>
+                            <Link
+                                href={search ? "/predictions" : "/"}
+                                className="text-primary hover:underline mt-2 inline-block"
+                            >
+                                {search ? "Xóa bộ lọc" : "← Quay về trang chủ"}
                             </Link>
                         </div>
                     )}

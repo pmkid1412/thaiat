@@ -44,11 +44,16 @@ export const authApi = {
         gender?: string;
     }) => api.post("/auth/register", data),
 
-    socialLogin: (data: { provider: string; idToken: string }) =>
-        api.post("/auth/social-login", data),
+    socialLogin: (provider: string, idToken: string) =>
+        api.post("/auth/social-login", { provider, idToken }),
 
     refresh: (refreshToken: string) =>
         api.post("/auth/refresh", { refreshToken }),
+
+    forgotPassword: (email: string) =>
+        api.post("/auth/forgot-password", { email }),
+
+    getProfile: () => api.get("/auth/profile"),
 };
 
 // ── Prediction APIs ──
@@ -59,12 +64,17 @@ export const predictionApi = {
         languageId?: number;
         search?: string;
         predictionType?: number;
+        domain?: string;
+        status?: string;
     }) => api.get("/predictions", { params }),
 
     getById: (id: number, languageId?: number) =>
         api.get(`/predictions/${id}`, { params: { languageId } }),
 
     bookmark: (id: number) => api.post(`/predictions/${id}/bookmark`),
+
+    getBookmarks: (params?: { page?: number; limit?: number }) =>
+        api.get("/predictions/bookmarks", { params }),
 };
 
 // ── Horoscope APIs ──
