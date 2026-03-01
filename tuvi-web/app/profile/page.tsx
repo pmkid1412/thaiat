@@ -166,7 +166,7 @@ export default function ProfilePage() {
                 const configRes = await api.get("/configs");
                 const configs = configRes.data?.data || configRes.data;
                 if (Array.isArray(configs)) {
-                    const zaloConfig = configs.find((c: any) => c.key === "ZALO_NUMBER");
+                    const zaloConfig = configs.find((c: any) => c.code === "ZALO_NUMBER");
                     if (zaloConfig?.value) setZaloNumber(zaloConfig.value);
                 }
             } catch { /* ignore */ }
