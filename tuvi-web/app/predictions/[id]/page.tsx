@@ -6,6 +6,7 @@ import Link from "next/link";
 import { predictionApi } from "@/lib/api";
 import Cookies from "js-cookie";
 import api from "@/lib/api";
+import { StoreButtons } from "@/components/ui/StoreButtons";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -67,37 +68,35 @@ function getStatusInfo(status: string | null) {
     return { name, className: colorMap[name] || "bg-gray-100 text-gray-600 border-gray-200" };
 }
 
-function ProGatePopup({ zaloNumber, onClose }: { zaloNumber: string; onClose: () => void }) {
-    const zaloLink = `https://zalo.me/${zaloNumber}`;
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center" onClick={e => e.stopPropagation()}>
-                <div className="text-5xl mb-4">🔒</div>
-                <h2 className="font-heading text-xl font-bold text-text-primary mb-2">
-                    Bài viết dành cho tài khoản Pro
-                </h2>
-                <p className="text-text-muted mb-6">
-                    Nâng cấp tài khoản Pro để xem toàn bộ bài viết phân tích chuyên sâu và nhận các dự đoán độc quyền.
-                </p>
-                <div className="flex flex-col gap-3">
-                    <a
-                        href={zaloLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-6 py-3 bg-[#0068FF] hover:bg-[#0055DD] text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
-                    >
-                        💬 Liên hệ qua Zalo
-                    </a>
-                    <button
-                        onClick={onClose}
-                        className="px-6 py-3 border border-surface-light text-text-muted rounded-xl hover:bg-surface-light transition-colors"
-                    >
-                        Quay lại
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+/** Truncate HTML at ~ratio of total text length, cutting at the nearest paragraph boundary */
+function truncateHtml(html: string, ratio: number): { preview: string; isTruncated: boolean } {
+    // Split into top-level blocks (paragraphs, divs, headings, lists, etc.)
+    const blockRegex = /<(?:p|div|h[1-6]|ul|ol|li|blockquote|section|table|hr)[^>]*>[\s\S]*?<\/(?:p|div|h[1-6]|ul|ol|li|blockquote|section|table)>|<hr\s*\/?>/gi;
+    const blocks: string[] = [];
+    let match;
+    while ((match = blockRegex.exec(html)) !== null) {
+        blocks.push(match[0]);
+    }
+    // Fallback: if no blocks found, split by <br> or newlines
+    if (blocks.length === 0) {
+        const lines = html.split(/<br\s*\/?>|\n/).filter(l => l.trim());
+        blocks.push(...lines);
+    }
+
+    const totalLength = blocks.reduce((sum, b) => sum + b.replace(/<[^>]+>/g, '').length, 0);
+    const targetLength = totalLength * ratio;
+
+    let accumulated = 0;
+    const previewBlocks: string[] = [];
+    for (const block of blocks) {
+        const textLen = block.replace(/<[^>]+>/g, '').length;
+        previewBlocks.push(block);
+        accumulated += textLen;
+        if (accumulated >= targetLength) break;
+    }
+
+    const isTruncated = previewBlocks.length < blocks.length;
+    return { preview: previewBlocks.join(''), isTruncated };
 }
 
 export default function PredictionDetailPage() {
@@ -106,10 +105,9 @@ export default function PredictionDetailPage() {
     const [prediction, setPrediction] = useState<PredictionDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [showProGate, setShowProGate] = useState(false);
+    const [isUserPro, setIsUserPro] = useState(true); // default true to avoid flash
     const [zaloNumber, setZaloNumber] = useState("0909000000");
     const [relatedPredictions, setRelatedPredictions] = useState<RelatedPrediction[]>([]);
-    const [userType, setUserType] = useState<string>("");
 
     useEffect(() => {
         const token = Cookies.get("accessToken");
@@ -130,16 +128,9 @@ export default function PredictionDetailPage() {
                     const profileRes = await api.get("/users/me");
                     const user = profileRes.data?.data || profileRes.data;
                     const uType = (user?.userType || user?.type || "").toString();
-                    setUserType(uType);
-
-                    // Check Pro gate: if prediction is Pro and user is not Pro
-                    const isPro = pred?.type?.toLowerCase() === "pro";
-                    const isUserPro = uType.toLowerCase() === "pro";
-                    if (isPro && !isUserPro) {
-                        setShowProGate(true);
-                    }
+                    setIsUserPro(uType.toLowerCase() === "pro");
                 } catch {
-                    // If profile fails, still show content (graceful degradation)
+                    setIsUserPro(false);
                 }
 
                 // Fetch Zalo number from configs
@@ -222,19 +213,15 @@ export default function PredictionDetailPage() {
 
     const status = getStatusInfo(prediction.predictionStatus);
     const isPro = prediction.type?.toLowerCase() === "pro";
+    const isFreeLocked = !isUserPro;
+
+    // Truncate content for free users
+    const { preview: previewHtml, isTruncated } = isFreeLocked && prediction.description
+        ? truncateHtml(prediction.description, 0.3)
+        : { preview: prediction.description || '', isTruncated: false };
 
     return (
         <div className="bg-surface-cream min-h-screen">
-            {/* Pro Gate Popup */}
-            {showProGate && (
-                <ProGatePopup
-                    zaloNumber={zaloNumber}
-                    onClose={() => {
-                        setShowProGate(false);
-                        router.push("/predictions");
-                    }}
-                />
-            )}
 
             {/* Header */}
             <section className="bg-surface-dark">
@@ -317,26 +304,47 @@ export default function PredictionDetailPage() {
                     </div>
                 )}
 
-                {/* Description / Content — Pro gate blur if needed */}
-                {showProGate ? (
-                    <div className="relative">
-                        <div className="blur-sm select-none pointer-events-none max-h-40 overflow-hidden">
-                            <div
-                                className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
-                                dangerouslySetInnerHTML={{ __html: autoLinkify(prediction.description || "") }}
-                            />
+                {/* Description / Content */}
+                <div
+                    className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: autoLinkify(previewHtml) }}
+                />
+
+                {/* Content Lock — inline upgrade CTA for free users */}
+                {isFreeLocked && isTruncated && (
+                    <div className="relative mt-0">
+                        {/* Gradient fade overlay */}
+                        <div className="h-24 -mt-24 bg-gradient-to-b from-transparent via-surface-cream/80 to-surface-cream relative z-10" />
+
+                        {/* Lock CTA */}
+                        <div className="bg-white border border-surface-light rounded-2xl p-8 text-center shadow-sm relative z-10">
+                            <div className="text-4xl mb-3">🔒</div>
+                            <h3 className="font-heading text-lg font-bold text-text-primary mb-2">
+                                Nội dung chỉ dành cho tài khoản Pro
+                            </h3>
+                            <p className="text-text-muted text-sm mb-6 max-w-md mx-auto">
+                                Nâng cấp tài khoản Pro để đọc toàn bộ bài viết phân tích chuyên sâu và nhận các dự đoán độc quyền.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                                <a
+                                    href={`https://zalo.me/${zaloNumber}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-6 py-3 bg-[#0068FF] hover:bg-[#0055DD] text-white rounded-xl font-semibold transition-colors flex items-center gap-2"
+                                >
+                                    💬 Liên hệ Zalo để nâng cấp
+                                </a>
+                            </div>
+                            <div className="mt-5 pt-4 border-t border-surface-light">
+                                <p className="text-xs text-text-muted mb-3">Hoặc tải app để trải nghiệm đầy đủ</p>
+                                <StoreButtons className="justify-center" />
+                            </div>
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface-cream" />
                     </div>
-                ) : (
-                    <div
-                        className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: autoLinkify(prediction.description || "") }}
-                    />
                 )}
 
                 {/* Evidences */}
-                {!showProGate && prediction.evidences && prediction.evidences.length > 0 && (
+                {!isFreeLocked && prediction.evidences && prediction.evidences.length > 0 && (
                     <div className="mt-8 pt-6 border-t border-surface-light">
                         <h3 className="text-sm font-heading font-semibold text-text-muted mb-3">
                             Bằng chứng
@@ -374,7 +382,7 @@ export default function PredictionDetailPage() {
                 )}
 
                 {/* Tags */}
-                {!showProGate && prediction.tags && prediction.tags.length > 0 && (
+                {!isFreeLocked && prediction.tags && prediction.tags.length > 0 && (
                     <div className="mt-8 pt-6 border-t border-surface-light">
                         <h3 className="text-sm font-heading font-semibold text-text-muted mb-3">
                             Từ khóa
@@ -393,7 +401,7 @@ export default function PredictionDetailPage() {
                 )}
 
                 {/* Related Predictions */}
-                {!showProGate && relatedPredictions.length > 0 && (
+                {!isFreeLocked && relatedPredictions.length > 0 && (
                     <div className="mt-10 pt-8 border-t border-surface-light">
                         <h3 className="font-heading text-lg font-bold text-text-primary mb-5">
                             📰 Dự đoán khác
