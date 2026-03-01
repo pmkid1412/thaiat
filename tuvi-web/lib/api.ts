@@ -80,10 +80,37 @@ export const predictionApi = {
 // ── Horoscope APIs ──
 export const horoscopeApi = {
     get: () => api.get("/horoscopes"),
+    create: (data: {
+        name: string;
+        solarDateOfBirth?: string;
+        lunarDateOfBirth?: string;
+        isLunarLeapMonth?: boolean;
+        timeOfBirth: string;
+        timezone: string;
+        gender: string;
+    }) => api.post("/horoscopes", data),
+    update: (data: {
+        name: string;
+        solarDateOfBirth?: string;
+        lunarDateOfBirth?: string;
+        isLunarLeapMonth?: boolean;
+        timeOfBirth: string;
+        timezone: string;
+        gender: string;
+    }) => api.put("/horoscopes", data),
     getToday: () => api.get("/horoscopes/day"),
     getMonth: () => api.get("/horoscopes/month"),
     getYear: () => api.get("/horoscopes/year"),
     getChart: () => api.get("/horoscopes/chart"),
+};
+
+// ── User APIs ──
+export const userApi = {
+    getMe: () => api.get("/users/me"),
+    updateMe: (data: { name?: string; dateOfBirth?: string; timeOfBirth?: string; timezone?: string; placeOfBirth?: string }) =>
+        api.put("/users/me", data),
+    changePassword: (data: { currentPassword: string; newPassword: string }) =>
+        api.post("/users/change-password", data),
 };
 
 export default api;

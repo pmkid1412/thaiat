@@ -16,13 +16,11 @@ export default function ForgotPasswordPage() {
         setError("");
 
         try {
-            await authApi.login(email, "trigger-reset").catch(() => null);
-            // Use the actual reset endpoint
-            const api = (await import("@/lib/api")).default;
-            await api.post("/auth/password-reset/request", { email });
+            await authApi.forgotPassword(email);
             setSent(true);
         } catch {
-            setError("Không thể gửi email. Vui lòng kiểm tra lại địa chỉ email.");
+            // Always show success to prevent email enumeration
+            setSent(true);
         } finally {
             setLoading(false);
         }
