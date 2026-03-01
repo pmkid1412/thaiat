@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { horoscopeApi } from "@/lib/api";
+import { StoreButtons } from "@/components/ui/StoreButtons";
 import Cookies from "js-cookie";
 
 type TabType = "day" | "month" | "year";
@@ -249,10 +250,7 @@ function ProGate({ tab }: { tab: string }) {
             <p className="text-text-muted text-sm mb-4 max-w-md mx-auto">
                 Nâng cấp Pro qua app để xem tử vi {tab === "month" ? "hàng tháng" : "tổng quan"} chi tiết.
             </p>
-            <div className="flex gap-2 justify-center">
-                <a href="#" className="text-xs px-3 py-1.5 bg-surface-dark text-text-light rounded-lg">🍎 App Store</a>
-                <a href="#" className="text-xs px-3 py-1.5 bg-surface-dark text-text-light rounded-lg">▶️ Google Play</a>
-            </div>
+            <StoreButtons className="justify-center" />
         </div>
     );
 }

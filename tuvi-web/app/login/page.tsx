@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { GoogleLogin } from "@react-oauth/google";
 import { authApi } from "@/lib/api";
+import { StoreButtons } from "@/components/ui/StoreButtons";
 import Cookies from "js-cookie";
 
 function LoginForm() {
@@ -178,23 +179,10 @@ function LoginForm() {
 
             {/* App download */}
             <div className="text-center mt-8 p-4 bg-white rounded-xl border border-surface-light">
-                <p className="text-sm text-text-muted mb-2">
+                <p className="text-sm text-text-muted mb-3">
                     📱 Tải app để trải nghiệm đầy đủ
                 </p>
-                <div className="flex gap-2 justify-center">
-                    <a
-                        href="#"
-                        className="text-xs px-3 py-1.5 bg-surface-dark text-text-light rounded-lg"
-                    >
-                        🍎 App Store
-                    </a>
-                    <a
-                        href="#"
-                        className="text-xs px-3 py-1.5 bg-surface-dark text-text-light rounded-lg"
-                    >
-                        ▶️ Google Play
-                    </a>
-                </div>
+                <StoreButtons className="justify-center" />
             </div>
         </div>
     );

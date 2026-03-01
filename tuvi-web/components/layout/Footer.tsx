@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StoreButtons } from "@/components/ui/StoreButtons";
 
 export function Footer() {
     return (
@@ -68,20 +69,7 @@ export function Footer() {
                         <p className="text-sm mb-3">
                             Trải nghiệm đầy đủ tính năng trên điện thoại
                         </p>
-                        <div className="flex gap-2">
-                            <a
-                                href="#"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/20 transition-colors"
-                            >
-                                <span>🍎</span> App Store
-                            </a>
-                            <a
-                                href="#"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/20 transition-colors"
-                            >
-                                <span>▶️</span> Google Play
-                            </a>
-                        </div>
+                        <StoreButtons />
                     </div>
                 </div>
 
