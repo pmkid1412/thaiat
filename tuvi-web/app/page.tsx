@@ -29,7 +29,15 @@ export default async function HomePage() {
     <div>
       {/* ═══ Hero Section (dark bg) ═══ */}
       <section className="bg-surface-dark ink-divider relative overflow-hidden">
-        {/* Background glow */}
+        {/* Background image */}
+        <img
+          src="/assets/images/hero-banner.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/50" />
+        {/* Accent glow */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-gold/10" />
 
         <div className="relative mx-auto max-w-[var(--container-max)] px-6 py-20 md:py-28 text-center">
