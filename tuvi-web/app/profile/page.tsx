@@ -325,16 +325,6 @@ export default function ProfilePage() {
                                 Hết hạn: {new Date(user.proPlanEndDate).toLocaleDateString("vi-VN")}
                             </p>
                         )}
-                        {!isPro && zaloNumber && (
-                            <a
-                                href={`https://zalo.me/${zaloNumber}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 mt-3 px-5 py-2 bg-gradient-to-r from-gold to-primary text-white text-sm font-heading font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-md"
-                            >
-                                ⭐ Nâng cấp Pro
-                            </a>
-                        )}
                     </div>
                 </div>
             </section>
@@ -467,13 +457,26 @@ export default function ProfilePage() {
 
                                 <div>
                                     <label className="block text-xs text-text-muted mb-1">Giờ sinh</label>
-                                    <input
-                                        type="time"
+                                    <select
                                         required
                                         value={formTimeOfBirth}
                                         onChange={(e) => setFormTimeOfBirth(e.target.value)}
                                         className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream"
-                                    />
+                                    >
+                                        <option value="">-- Chọn giờ sinh --</option>
+                                        <option value="Tý (23h-1h)">Tý (23h-1h)</option>
+                                        <option value="Sửu (1h-3h)">Sửu (1h-3h)</option>
+                                        <option value="Dần (3h-5h)">Dần (3h-5h)</option>
+                                        <option value="Mão (5h-7h)">Mão (5h-7h)</option>
+                                        <option value="Thìn (7h-9h)">Thìn (7h-9h)</option>
+                                        <option value="Tỵ (9h-11h)">Tỵ (9h-11h)</option>
+                                        <option value="Ngọ (11h-13h)">Ngọ (11h-13h)</option>
+                                        <option value="Mùi (13h-15h)">Mùi (13h-15h)</option>
+                                        <option value="Thân (15h-17h)">Thân (15h-17h)</option>
+                                        <option value="Dậu (17h-19h)">Dậu (17h-19h)</option>
+                                        <option value="Tuất (19h-21h)">Tuất (19h-21h)</option>
+                                        <option value="Hợi (21h-23h)">Hợi (21h-23h)</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label className="block text-xs text-text-muted mb-1">Múi giờ</label>

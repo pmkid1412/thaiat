@@ -553,7 +553,7 @@ export default function HoroscopePage() {
     ];
 
     const handleFormSuccess = () => {
-        // Refetch horoscope info and tab data
+        // Refetch horoscope info and clear old tab data so they reload
         horoscopeApi.get()
             .then((res) => {
                 const h = res.data?.data || res.data;
@@ -561,6 +561,10 @@ export default function HoroscopePage() {
                     setHoroscopeInfo(h);
                     setEditingInfo(false);
                     setNoHoroscope(false);
+                    // Clear cached tab data so it re-fetches with new horoscope
+                    setDailyData(null);
+                    setMonthlyData(null);
+                    setYearlyData(null);
                 }
             })
             .catch(() => { });
