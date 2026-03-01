@@ -90,7 +90,7 @@ function LoginForm() {
             </div>
 
             {/* Form Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-surface-light p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-surface-light p-5 sm:p-8">
                 {/* Google Login */}
                 <div className="flex justify-center mb-6">
                     <GoogleLogin
@@ -98,7 +98,6 @@ function LoginForm() {
                         onError={() => setError("Đăng nhập Google bị hủy.")}
                         theme="outline"
                         size="large"
-                        width="360"
                         text="signin_with"
                         shape="pill"
                     />
@@ -203,7 +202,7 @@ function LoginForm() {
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen bg-surface-cream flex items-center justify-center px-6 py-12">
+        <div className="min-h-screen bg-surface-cream flex items-center justify-center px-4 sm:px-6 py-12">
             <Suspense
                 fallback={
                     <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin" />
