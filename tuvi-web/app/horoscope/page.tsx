@@ -78,6 +78,66 @@ function isValidDate(str: string): boolean {
     return /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str);
 }
 
+/** Map Chi labels to representative HH:mm values for the API */
+const TIME_OPTIONS = [
+    { value: "00:00", label: "Tý (23h-1h)" },
+    { value: "02:00", label: "Sửu (1h-3h)" },
+    { value: "04:00", label: "Dần (3h-5h)" },
+    { value: "06:00", label: "Mão (5h-7h)" },
+    { value: "08:00", label: "Thìn (7h-9h)" },
+    { value: "10:00", label: "Tỵ (9h-11h)" },
+    { value: "12:00", label: "Ngọ (11h-13h)" },
+    { value: "14:00", label: "Mùi (13h-15h)" },
+    { value: "16:00", label: "Thân (15h-17h)" },
+    { value: "18:00", label: "Dậu (17h-19h)" },
+    { value: "20:00", label: "Tuất (19h-21h)" },
+    { value: "22:00", label: "Hợi (21h-23h)" },
+];
+
+/** Convert HH:mm(:ss) to Chi label for display */
+function timeToChiLabel(time: string | null | undefined): string {
+    if (!time) return "—";
+    // Parse hours from HH:mm or HH:mm:ss
+    const match = time.match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return time; // If already a Chi label, return as-is
+    const hour = parseInt(match[1], 10);
+    // Map to Chi based on 2-hour ranges
+    if (hour >= 23 || hour < 1) return "Tý (23h-1h)";
+    if (hour >= 1 && hour < 3) return "Sửu (1h-3h)";
+    if (hour >= 3 && hour < 5) return "Dần (3h-5h)";
+    if (hour >= 5 && hour < 7) return "Mão (5h-7h)";
+    if (hour >= 7 && hour < 9) return "Thìn (7h-9h)";
+    if (hour >= 9 && hour < 11) return "Tỵ (9h-11h)";
+    if (hour >= 11 && hour < 13) return "Ngọ (11h-13h)";
+    if (hour >= 13 && hour < 15) return "Mùi (13h-15h)";
+    if (hour >= 15 && hour < 17) return "Thân (15h-17h)";
+    if (hour >= 17 && hour < 19) return "Dậu (17h-19h)";
+    if (hour >= 19 && hour < 21) return "Tuất (19h-21h)";
+    if (hour >= 21 && hour < 23) return "Hợi (21h-23h)";
+    return time;
+}
+
+/** Convert HH:mm(:ss) time to the nearest Chi option value for form pre-selection */
+function timeToChiValue(time: string | null | undefined): string {
+    if (!time) return "";
+    const match = time.match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return ""; // Not in HH:mm format
+    const hour = parseInt(match[1], 10);
+    if (hour >= 23 || hour < 1) return "00:00";
+    if (hour >= 1 && hour < 3) return "02:00";
+    if (hour >= 3 && hour < 5) return "04:00";
+    if (hour >= 5 && hour < 7) return "06:00";
+    if (hour >= 7 && hour < 9) return "08:00";
+    if (hour >= 9 && hour < 11) return "10:00";
+    if (hour >= 11 && hour < 13) return "12:00";
+    if (hour >= 13 && hour < 15) return "14:00";
+    if (hour >= 15 && hour < 17) return "16:00";
+    if (hour >= 17 && hour < 19) return "18:00";
+    if (hour >= 19 && hour < 21) return "20:00";
+    if (hour >= 21 && hour < 23) return "22:00";
+    return "";
+}
+
 // ─── Sub-components ───
 
 function EnergyBar({ label, bar }: { label: string; bar?: string }) {
@@ -219,7 +279,9 @@ function HoroscopeForm({
         toDisplayDate(initialData?.solarDateOfBirth || initialData?.lunarDateOfBirth || "")
     );
     const [isLeapMonth, setIsLeapMonth] = useState(initialData?.isLunarLeapMonth || false);
-    const [timeOfBirth, setTimeOfBirth] = useState(initialData?.timeOfBirth || "");
+    const [timeOfBirth, setTimeOfBirth] = useState(
+        timeToChiValue(initialData?.timeOfBirth) || ""
+    );
     const [timezone, setTimezone] = useState(initialData?.timezone || "7");
     const [submitting, setSubmitting] = useState(false);
     const [msg, setMsg] = useState("");
@@ -357,18 +419,9 @@ function HoroscopeForm({
                     className={inputClass}
                 >
                     <option value="">-- Chọn giờ sinh --</option>
-                    <option value="Tý (23h-1h)">Tý (23h-1h)</option>
-                    <option value="Sửu (1h-3h)">Sửu (1h-3h)</option>
-                    <option value="Dần (3h-5h)">Dần (3h-5h)</option>
-                    <option value="Mão (5h-7h)">Mão (5h-7h)</option>
-                    <option value="Thìn (7h-9h)">Thìn (7h-9h)</option>
-                    <option value="Tỵ (9h-11h)">Tỵ (9h-11h)</option>
-                    <option value="Ngọ (11h-13h)">Ngọ (11h-13h)</option>
-                    <option value="Mùi (13h-15h)">Mùi (13h-15h)</option>
-                    <option value="Thân (15h-17h)">Thân (15h-17h)</option>
-                    <option value="Dậu (17h-19h)">Dậu (17h-19h)</option>
-                    <option value="Tuất (19h-21h)">Tuất (19h-21h)</option>
-                    <option value="Hợi (21h-23h)">Hợi (21h-23h)</option>
+                    {TIME_OPTIONS.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
                 </select>
             </div>
 
@@ -457,7 +510,7 @@ function HoroscopeInfoCard({
                 </div>
                 <div>
                     <span className="text-text-muted text-xs">Giờ sinh</span>
-                    <p className="font-medium text-text-primary">{info.timeOfBirth || "—"}</p>
+                    <p className="font-medium text-text-primary">{timeToChiLabel(info.timeOfBirth)}</p>
                 </div>
             </div>
         </div>

@@ -92,6 +92,27 @@ function isValidDate(str: string): boolean {
     return /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str);
 }
 
+/** Convert raw HH:mm(:ss) time to the nearest Chi dropdown value */
+function timeToChiValue(time: string | null | undefined): string {
+    if (!time) return "";
+    const match = time.match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return "";
+    const hour = parseInt(match[1], 10);
+    if (hour >= 23 || hour < 1) return "00:00";
+    if (hour >= 1 && hour < 3) return "02:00";
+    if (hour >= 3 && hour < 5) return "04:00";
+    if (hour >= 5 && hour < 7) return "06:00";
+    if (hour >= 7 && hour < 9) return "08:00";
+    if (hour >= 9 && hour < 11) return "10:00";
+    if (hour >= 11 && hour < 13) return "12:00";
+    if (hour >= 13 && hour < 15) return "14:00";
+    if (hour >= 15 && hour < 17) return "16:00";
+    if (hour >= 17 && hour < 19) return "18:00";
+    if (hour >= 19 && hour < 21) return "20:00";
+    if (hour >= 21 && hour < 23) return "22:00";
+    return "";
+}
+
 export default function ProfilePage() {
     const router = useRouter();
     const [user, setUser] = useState<UserProfile | null>(null);
@@ -143,7 +164,7 @@ export default function ProfilePage() {
                         setFormName(h.name || "");
                         setFormGender(h.gender || "male");
                         setFormTimezone(h.timezone || "7");
-                        setFormTimeOfBirth(h.timeOfBirth || "");
+                        setFormTimeOfBirth(timeToChiValue(h.timeOfBirth) || "");
                         // Determine calendar type and date
                         if (h.solarDateOfBirth) {
                             setCalendarType("solar");
@@ -222,7 +243,7 @@ export default function ProfilePage() {
                 setFormName(h.name || "");
                 setFormGender(h.gender || "male");
                 setFormTimezone(h.timezone || "7");
-                setFormTimeOfBirth(h.timeOfBirth || "");
+                setFormTimeOfBirth(timeToChiValue(h.timeOfBirth) || "");
                 if (h.solarDateOfBirth) {
                     setCalendarType("solar");
                     setFormDateOfBirth(toDisplayDate(h.solarDateOfBirth));
@@ -464,18 +485,18 @@ export default function ProfilePage() {
                                         className="w-full px-3 py-2 border border-surface-light rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-cream"
                                     >
                                         <option value="">-- Chọn giờ sinh --</option>
-                                        <option value="Tý (23h-1h)">Tý (23h-1h)</option>
-                                        <option value="Sửu (1h-3h)">Sửu (1h-3h)</option>
-                                        <option value="Dần (3h-5h)">Dần (3h-5h)</option>
-                                        <option value="Mão (5h-7h)">Mão (5h-7h)</option>
-                                        <option value="Thìn (7h-9h)">Thìn (7h-9h)</option>
-                                        <option value="Tỵ (9h-11h)">Tỵ (9h-11h)</option>
-                                        <option value="Ngọ (11h-13h)">Ngọ (11h-13h)</option>
-                                        <option value="Mùi (13h-15h)">Mùi (13h-15h)</option>
-                                        <option value="Thân (15h-17h)">Thân (15h-17h)</option>
-                                        <option value="Dậu (17h-19h)">Dậu (17h-19h)</option>
-                                        <option value="Tuất (19h-21h)">Tuất (19h-21h)</option>
-                                        <option value="Hợi (21h-23h)">Hợi (21h-23h)</option>
+                                        <option value="00:00">Tý (23h-1h)</option>
+                                        <option value="02:00">Sửu (1h-3h)</option>
+                                        <option value="04:00">Dần (3h-5h)</option>
+                                        <option value="06:00">Mão (5h-7h)</option>
+                                        <option value="08:00">Thìn (7h-9h)</option>
+                                        <option value="10:00">Tỵ (9h-11h)</option>
+                                        <option value="12:00">Ngọ (11h-13h)</option>
+                                        <option value="14:00">Mùi (13h-15h)</option>
+                                        <option value="16:00">Thân (15h-17h)</option>
+                                        <option value="18:00">Dậu (17h-19h)</option>
+                                        <option value="20:00">Tuất (19h-21h)</option>
+                                        <option value="22:00">Hợi (21h-23h)</option>
                                     </select>
                                 </div>
                                 <div>
