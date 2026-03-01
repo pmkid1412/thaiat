@@ -35,6 +35,7 @@ interface PredictionDetail {
     isBookmarked: boolean;
     tags: string[];
     type?: string;
+    thumbnailUrl?: string;
     evidences: {
         id: number;
         title: string;
@@ -301,6 +302,17 @@ export default function PredictionDetailPage() {
                 {prediction.summary && (
                     <div className="bg-gold/5 border-l-4 border-gold p-4 rounded-r-lg mb-8">
                         <p className="text-text-primary leading-relaxed italic">{prediction.summary}</p>
+                    </div>
+                )}
+
+                {/* Thumbnail Image */}
+                {prediction.thumbnailUrl && (
+                    <div className="mb-8 rounded-xl overflow-hidden border border-surface-light">
+                        <img
+                            src={prediction.thumbnailUrl.startsWith('http') ? prediction.thumbnailUrl : `${process.env.NEXT_PUBLIC_API_URL || 'https://api.thaiatkimhoa.vn'}${prediction.thumbnailUrl}`}
+                            alt={prediction.title || 'Ảnh minh họa'}
+                            className="w-full h-auto object-cover"
+                        />
                     </div>
                 )}
 
