@@ -9,6 +9,7 @@ interface PredictionCardProps {
     predictionStatus: string;
     predictionDate?: string;
     areas?: string[];
+    type?: string;
 }
 
 function getStatusColor(status: string) {
@@ -36,10 +37,20 @@ export function PredictionCard({
     predictionStatus,
     predictionDate,
     areas,
+    type,
 }: PredictionCardProps) {
+    const isPro = type?.toLowerCase() === "pro";
+
     return (
         <Link href={`/predictions/${id}`}>
-            <article className="prediction-card bg-white rounded-xl p-5 shadow-sm border border-surface-light hover:border-gold/30 cursor-pointer">
+            <article className="prediction-card bg-white rounded-xl p-5 shadow-sm border border-surface-light hover:border-gold/30 cursor-pointer relative">
+                {/* Pro Badge */}
+                {isPro && (
+                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-gradient-to-r from-gold to-primary text-white text-[10px] font-bold rounded-full uppercase tracking-wide shadow-sm">
+                        PRO
+                    </span>
+                )}
+
                 {/* Header: Score + Domain */}
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -77,7 +88,7 @@ export function PredictionCard({
                             {areas.slice(0, 2).map((area, i) => (
                                 <span
                                     key={i}
-                                    className="px-1.5 py-0.5 bg-gold/10 text-gold rounded text-xs"
+                                    className="px-1.5 py-0.5 bg-primary/10 text-primary font-medium rounded text-xs"
                                 >
                                     {area}
                                 </span>

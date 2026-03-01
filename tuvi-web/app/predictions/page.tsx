@@ -17,13 +17,13 @@ interface PredictionItem {
     predictionStatus: string;
     predictionDate: string;
     areas: string[];
+    type?: string;
 }
 
 async function getPredictions(
     page: number = 1,
     search?: string
 ) {
-    // Server-side: use internal Docker network URL; Client-side: use public URL
     const apiUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "https://api.thaiatkimhoa.vn";
     try {
         const params = new URLSearchParams({
@@ -38,7 +38,6 @@ async function getPredictions(
         );
         if (!res.ok) return { data: [], total: 0, page: 1, pageSize: 12 };
         const json = await res.json();
-        // API returns data grouped by date: { "2026-03-01": [...], ... }
         const rawData = json?.data?.data;
         let items: PredictionItem[] = [];
         if (rawData && typeof rawData === "object" && !Array.isArray(rawData)) {
@@ -57,15 +56,32 @@ async function getPredictions(
     }
 }
 
+const FILTER_OPTIONS = [
+    { key: "all", label: "Tất cả" },
+    { key: "free", label: "Miễn phí" },
+    { key: "pro", label: "Pro ⭐" },
+];
+
 export default async function PredictionsPage({
     searchParams,
 }: {
-    searchParams: Promise<{ page?: string; search?: string }>;
+    searchParams: Promise<{ page?: string; search?: string; filter?: string }>;
 }) {
     const params = await searchParams;
     const currentPage = parseInt(params.page || "1", 10);
     const search = params.search || "";
-    const { data: predictions, total, pageSize } = await getPredictions(currentPage, search);
+    const filter = params.filter || "all";
+    const { data: allPredictions, total, pageSize } = await getPredictions(currentPage, search);
+
+    // Client-side filter by type
+    const predictions = filter === "all"
+        ? allPredictions
+        : allPredictions.filter(p =>
+            filter === "pro"
+                ? p.type?.toLowerCase() === "pro"
+                : p.type?.toLowerCase() !== "pro"
+        );
+
     const totalPages = Math.ceil(total / pageSize) || 1;
 
     return (
@@ -119,6 +135,28 @@ export default async function PredictionsPage({
             {/* Content */}
             <section className="py-10 md:py-14">
                 <div className="mx-auto max-w-[var(--container-max)] px-6">
+                    {/* Filter Tabs */}
+                    <div className="flex items-center gap-2 mb-8">
+                        {FILTER_OPTIONS.map((opt) => {
+                            const isActive = filter === opt.key;
+                            const href = opt.key === "all"
+                                ? `/predictions?${search ? `search=${search}&` : ""}page=${currentPage}`
+                                : `/predictions?filter=${opt.key}${search ? `&search=${search}` : ""}&page=${currentPage}`;
+                            return (
+                                <Link
+                                    key={opt.key}
+                                    href={href}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${isActive
+                                        ? "bg-primary text-white shadow-sm"
+                                        : "bg-white text-text-muted border border-surface-light hover:border-primary/30 hover:text-primary"
+                                        }`}
+                                >
+                                    {opt.label}
+                                </Link>
+                            );
+                        })}
+                    </div>
+
                     {predictions.length > 0 ? (
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -133,6 +171,7 @@ export default async function PredictionsPage({
                                         predictionStatus={p.predictionStatus}
                                         predictionDate={p.predictionDate}
                                         areas={p.areas}
+                                        type={p.type}
                                     />
                                 ))}
                             </div>
@@ -142,7 +181,7 @@ export default async function PredictionsPage({
                                 <div className="flex justify-center items-center gap-3 mt-10">
                                     {currentPage > 1 && (
                                         <Link
-                                            href={`/predictions?page=${currentPage - 1}${search ? `&search=${search}` : ""}`}
+                                            href={`/predictions?page=${currentPage - 1}${search ? `&search=${search}` : ""}${filter !== "all" ? `&filter=${filter}` : ""}`}
                                             className="px-4 py-2 bg-white border border-surface-light rounded-lg text-sm hover:border-primary transition-colors"
                                         >
                                             ← Trước
@@ -153,7 +192,7 @@ export default async function PredictionsPage({
                                     </span>
                                     {currentPage < totalPages && (
                                         <Link
-                                            href={`/predictions?page=${currentPage + 1}${search ? `&search=${search}` : ""}`}
+                                            href={`/predictions?page=${currentPage + 1}${search ? `&search=${search}` : ""}${filter !== "all" ? `&filter=${filter}` : ""}`}
                                             className="px-4 py-2 bg-white border border-surface-light rounded-lg text-sm hover:border-primary transition-colors"
                                         >
                                             Tiếp →
@@ -168,13 +207,15 @@ export default async function PredictionsPage({
                             <p className="text-lg">
                                 {search
                                     ? `Không tìm thấy kết quả cho "${search}"`
-                                    : "Chưa có bài viết dự đoán nào."}
+                                    : filter !== "all"
+                                        ? `Không có bài viết ${filter === "pro" ? "Pro" : "miễn phí"} nào.`
+                                        : "Chưa có bài viết dự đoán nào."}
                             </p>
                             <Link
-                                href={search ? "/predictions" : "/"}
+                                href="/predictions"
                                 className="text-primary hover:underline mt-2 inline-block"
                             >
-                                {search ? "Xóa bộ lọc" : "← Quay về trang chủ"}
+                                {search || filter !== "all" ? "Xóa bộ lọc" : "← Quay về trang chủ"}
                             </Link>
                         </div>
                     )}

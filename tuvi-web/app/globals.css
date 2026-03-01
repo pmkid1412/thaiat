@@ -89,6 +89,17 @@ h6 {
   font-family: "Plus Jakarta Sans", sans-serif !important;
 }
 
+.report-content a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.report-content a:hover {
+  color: var(--color-primary-dark);
+}
+
 /* === Scrollbar === */
 ::-webkit-scrollbar {
   width: 8px;

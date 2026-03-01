@@ -65,7 +65,7 @@ export class PredictionService {
     @InjectRepository(PredictionBookmark)
     private readonly predictionBookmarkRepository: Repository<PredictionBookmark>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async create(
     createPredictionDto: CreatePredictionRequestDto,
@@ -628,6 +628,7 @@ export class PredictionService {
       isBookmarked: prediction.predictionBookmarks?.length > 0,
       tags: prediction.predictionTags.map((pt) => pt.tag?.name ?? null),
       evidences: prediction.evidences,
+      type: prediction.type,
     };
   }
 

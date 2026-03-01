@@ -5,6 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { predictionApi } from "@/lib/api";
 import Cookies from "js-cookie";
+import api from "@/lib/api";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // Matches the flat response from backend findByIdConverted
 interface PredictionDetail {
@@ -21,6 +24,7 @@ interface PredictionDetail {
     impactLevel: string | null;
     isBookmarked: boolean;
     tags: string[];
+    type?: string;
     evidences: {
         id: number;
         title: string;
@@ -30,6 +34,18 @@ interface PredictionDetail {
         confidenceScore: number;
         quote: string;
     }[];
+}
+
+interface RelatedPrediction {
+    id: number;
+    title: string;
+    summary: string;
+    domainName: string;
+    confidenceScore: number;
+    predictionStatus: string;
+    predictionDate: string;
+    areas: string[];
+    type?: string;
 }
 
 function getStatusInfo(status: string | null) {
@@ -42,12 +58,49 @@ function getStatusInfo(status: string | null) {
     return { name, className: colorMap[name] || "bg-gray-100 text-gray-600 border-gray-200" };
 }
 
+function ProGatePopup({ zaloNumber, onClose }: { zaloNumber: string; onClose: () => void }) {
+    const zaloLink = `https://zalo.me/${zaloNumber}`;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center" onClick={e => e.stopPropagation()}>
+                <div className="text-5xl mb-4">🔒</div>
+                <h2 className="font-heading text-xl font-bold text-text-primary mb-2">
+                    Bài viết dành cho tài khoản Pro
+                </h2>
+                <p className="text-text-muted mb-6">
+                    Nâng cấp tài khoản Pro để xem toàn bộ bài viết phân tích chuyên sâu và nhận các dự đoán độc quyền.
+                </p>
+                <div className="flex flex-col gap-3">
+                    <a
+                        href={zaloLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-3 bg-[#0068FF] hover:bg-[#0055DD] text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                    >
+                        💬 Liên hệ qua Zalo
+                    </a>
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-3 border border-surface-light text-text-muted rounded-xl hover:bg-surface-light transition-colors"
+                    >
+                        Quay lại
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function PredictionDetailPage() {
     const params = useParams();
     const router = useRouter();
     const [prediction, setPrediction] = useState<PredictionDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showProGate, setShowProGate] = useState(false);
+    const [zaloNumber, setZaloNumber] = useState("0909000000");
+    const [relatedPredictions, setRelatedPredictions] = useState<RelatedPrediction[]>([]);
+    const [userType, setUserType] = useState<string>("");
 
     useEffect(() => {
         const token = Cookies.get("accessToken");
@@ -56,10 +109,57 @@ export default function PredictionDetailPage() {
             return;
         }
 
-        const fetchPrediction = async () => {
+        const fetchData = async () => {
             try {
+                // Fetch prediction detail
                 const res = await predictionApi.getById(Number(params.id));
-                setPrediction(res.data?.data || res.data);
+                const pred = res.data?.data || res.data;
+                setPrediction(pred);
+
+                // Get user profile to check Pro status
+                try {
+                    const profileRes = await api.get("/auth/profile");
+                    const user = profileRes.data?.data || profileRes.data;
+                    setUserType(user?.userType || user?.type || "");
+
+                    // Check Pro gate: if prediction is Pro and user is not Pro
+                    const isPro = pred?.type?.toLowerCase() === "pro";
+                    const isUserPro = (user?.userType || user?.type || "").toLowerCase() === "pro";
+                    if (isPro && !isUserPro) {
+                        setShowProGate(true);
+                    }
+                } catch {
+                    // If profile fails, still show content (graceful degradation)
+                }
+
+                // Fetch Zalo number from configs
+                try {
+                    const configRes = await api.get("/configs");
+                    const configs = configRes.data?.data || configRes.data;
+                    if (Array.isArray(configs)) {
+                        const zaloConfig = configs.find((c: any) => c.code === "ZALO_NUMBER");
+                        if (zaloConfig?.value) setZaloNumber(zaloConfig.value);
+                    }
+                } catch {
+                    // Use default Zalo number
+                }
+
+                // Fetch related predictions
+                try {
+                    const relatedRes = await predictionApi.list({ pageSize: 4 });
+                    const relatedData = relatedRes.data?.data;
+                    let items: RelatedPrediction[] = [];
+                    const rawData = relatedData?.data;
+                    if (rawData && typeof rawData === "object" && !Array.isArray(rawData)) {
+                        items = Object.values(rawData).flat() as RelatedPrediction[];
+                    } else if (Array.isArray(rawData)) {
+                        items = rawData;
+                    }
+                    // Filter out current article
+                    setRelatedPredictions(items.filter(p => p.id !== Number(params.id)).slice(0, 3));
+                } catch {
+                    // No related predictions
+                }
             } catch (err: unknown) {
                 const error = err as { response?: { status: number } };
                 if (error.response?.status === 401) {
@@ -72,7 +172,7 @@ export default function PredictionDetailPage() {
             }
         };
 
-        fetchPrediction();
+        fetchData();
     }, [params.id, router]);
 
     const handleBookmark = async () => {
@@ -111,9 +211,21 @@ export default function PredictionDetailPage() {
     }
 
     const status = getStatusInfo(prediction.predictionStatus);
+    const isPro = prediction.type?.toLowerCase() === "pro";
 
     return (
         <div className="bg-surface-cream min-h-screen">
+            {/* Pro Gate Popup */}
+            {showProGate && (
+                <ProGatePopup
+                    zaloNumber={zaloNumber}
+                    onClose={() => {
+                        setShowProGate(false);
+                        router.push("/predictions");
+                    }}
+                />
+            )}
+
             {/* Header */}
             <section className="bg-surface-dark">
                 <div className="mx-auto max-w-[var(--container-max)] px-6 py-6 flex items-center justify-between">
@@ -123,15 +235,22 @@ export default function PredictionDetailPage() {
                     >
                         ← Quay lại
                     </Link>
-                    <button
-                        onClick={handleBookmark}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${prediction.isBookmarked
-                            ? "bg-gold text-surface-dark"
-                            : "border border-gold/40 text-gold hover:bg-gold/10"
-                            }`}
-                    >
-                        {prediction.isBookmarked ? "🔖 Đã lưu" : "🔖 Lưu lại"}
-                    </button>
+                    <div className="flex items-center gap-3">
+                        {isPro && (
+                            <span className="px-3 py-1 bg-gradient-to-r from-gold to-primary text-white text-xs font-bold rounded-full uppercase tracking-wide">
+                                PRO
+                            </span>
+                        )}
+                        <button
+                            onClick={handleBookmark}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${prediction.isBookmarked
+                                ? "bg-gold text-surface-dark"
+                                : "border border-gold/40 text-gold hover:bg-gold/10"
+                                }`}
+                        >
+                            {prediction.isBookmarked ? "🔖 Đã lưu" : "🔖 Lưu lại"}
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -188,14 +307,26 @@ export default function PredictionDetailPage() {
                     </div>
                 )}
 
-                {/* Description / Content */}
-                <div
-                    className="prose prose-lg max-w-none text-text-primary leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: prediction.description || "" }}
-                />
+                {/* Description / Content — Pro gate blur if needed */}
+                {showProGate ? (
+                    <div className="relative">
+                        <div className="blur-sm select-none pointer-events-none max-h-40 overflow-hidden">
+                            <div
+                                className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: prediction.description || "" }}
+                            />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface-cream" />
+                    </div>
+                ) : (
+                    <div
+                        className="report-content prose prose-lg max-w-none text-text-primary leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: prediction.description || "" }}
+                    />
+                )}
 
                 {/* Evidences */}
-                {prediction.evidences && prediction.evidences.length > 0 && (
+                {!showProGate && prediction.evidences && prediction.evidences.length > 0 && (
                     <div className="mt-8 pt-6 border-t border-surface-light">
                         <h3 className="text-sm font-heading font-semibold text-text-muted mb-3">
                             Bằng chứng
@@ -233,7 +364,7 @@ export default function PredictionDetailPage() {
                 )}
 
                 {/* Tags */}
-                {prediction.tags && prediction.tags.length > 0 && (
+                {!showProGate && prediction.tags && prediction.tags.length > 0 && (
                     <div className="mt-8 pt-6 border-t border-surface-light">
                         <h3 className="text-sm font-heading font-semibold text-text-muted mb-3">
                             Từ khóa
@@ -246,6 +377,45 @@ export default function PredictionDetailPage() {
                                 >
                                     #{tag}
                                 </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Related Predictions */}
+                {!showProGate && relatedPredictions.length > 0 && (
+                    <div className="mt-10 pt-8 border-t border-surface-light">
+                        <h3 className="font-heading text-lg font-bold text-text-primary mb-5">
+                            📰 Dự đoán khác
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {relatedPredictions.map((rp) => (
+                                <Link key={rp.id} href={`/predictions/${rp.id}`}>
+                                    <div className="bg-white rounded-xl p-4 border border-surface-light hover:border-gold/30 hover:shadow-md transition-all group">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-xs font-bold text-primary">
+                                                📊 {rp.confidenceScore}%
+                                            </span>
+                                            {rp.type?.toLowerCase() === "pro" && (
+                                                <span className="px-1.5 py-0.5 bg-gradient-to-r from-gold to-primary text-white text-[9px] font-bold rounded-full uppercase">
+                                                    PRO
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h4 className="font-heading font-semibold text-text-primary text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                                            {rp.title}
+                                        </h4>
+                                        {rp.areas && rp.areas.length > 0 && (
+                                            <div className="flex gap-1 mt-2">
+                                                {rp.areas.slice(0, 2).map((area, i) => (
+                                                    <span key={i} className="px-1.5 py-0.5 bg-primary/10 text-primary font-medium rounded text-[10px]">
+                                                        {area}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </Link>
                             ))}
                         </div>
                     </div>
